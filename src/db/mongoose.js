@@ -1,8 +1,10 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const MONGO_DB = 'mongodb://localhost/test'
+const MONGO_DB = 'mongodb://localhost/test';
 
-mongoose.connect(MONGO_DB, {
-    useNewUrlParser: true,
-    useCreateIndex: true
-})
+module.exports = () => {
+    mongoose.connect(MONGO_DB, {
+        useNewUrlParser: true,
+        useCreateIndex: true
+    });
+}
