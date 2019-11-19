@@ -1,18 +1,20 @@
-const path = require('path')
+const path = require('path');
+const express = require('express');
 
-const express = require('express')
+const router = require('./router');
+const initDB = require('./db/mongoose');
 
-const indexRoute = require('./routes/index')
-const userRoute = require('./routes/user')
+const server = express();
+const port = process.env.PORT || 3000;
 
-const server = express()
+const staticAssetPath = path.join(__dirname,'../public');
 
-const staticAssetPath = path.join(__dirname,'../public')
+server.use(express.json());
+server.use(express.static(staticAssetPath));
 
-server.use(express.json())
-server.use(express.static(staticAssetPath))
+initDB();
+router(server);
 
-server.use(indexRoute)
-server.use(userRoute)
-
-module.exports = server
+server.listen(port, () => {
+    console.log('Server running on port: ' + port);
+});
