@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const channelSchema = new mongoose.Schema({
     name: {
@@ -16,8 +16,8 @@ const channelSchema = new mongoose.Schema({
         required: true,
         ref: 'User'
     }]
-})
+});
 
-const Channel = mongoose.model('Channel', channelSchema)
+const Channel = mongoose.model('Channel', channelSchema);
 
-module.exports = Channel
+module.exports = Channel;

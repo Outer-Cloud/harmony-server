@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
     text: {
@@ -15,7 +15,12 @@ const messageSchema = new mongoose.Schema({
         required: true,
         ref: 'Channel'
     }
+});
 
-})
+const Message = mongoose.model('Message',messageSchema);
 
+<<<<<<< HEAD
 const Message = mongoose.model('Message',messageSchema)
+=======
+module.exports = Message;
+>>>>>>> 189599fab2a8064ca74a7c190afd67f9e37394bb
