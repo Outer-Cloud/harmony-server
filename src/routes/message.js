@@ -14,7 +14,6 @@ router.post('/',async (req, res) => {
         await newMessage.save();
         res.status(200).send(newMessage);
     }catch(error){
-        console.log(error);
         res.status(400).send(error);
     }
 
@@ -25,16 +24,12 @@ router.get('/get', async (req,res) => {
     try {
         const o_ID = await new mongo.ObjectID(id);
         const message = await Message.findById(o_ID);
-if(!message){
-          return res.status(400).send('Error: message with corresponding ID does not exist');
-}
-res.status(200).send(message);  
+         if(!message){
+             res.status(400).send('Error: message with corresponding ID does not exist');
+             return;
+         }
+        res.status(200).send(message);  
      
-            res.status(400).send('Error: message with corresponding ID does not exist');
-        }else{
-            res.status(200).send(message);  
-        }
-
     } catch (error) {
         res.status(400).send('Error: ID length not 12');//this error message may not be correct
     }
@@ -49,7 +44,6 @@ router.delete('/delete', async (req,res) => {
         var message = await Message.findByIdAndRemove(o_ID,{useFindAndModify:false});
         res.status(200).send(message);
     }catch(error){
-        console.log(error);
         res.status(400).send('Error: something went wrong');
     }
 })
@@ -62,19 +56,14 @@ router.patch('/edit', async (req,res) => {
         const message = await Message.findOneAndUpdate({_id:o_ID},{text:updateText},{useFindAndModify:false, new:true});
         if(!message){
             res.status(400).send('Error: message with corresponding ID does not exist');
-        }else{
-            res.status(200).send(message);  
+            return;
         }
+        res.status(200).send(message);  
 
     } catch (error) {
         res.status(400).send('Error: ID length not 12');//this error message may not be correct
     }
 
-})
-
-router.get('/dump', async(req,res) =>{
-    const messages = await Message.find({});
-    res.send(messages);
 })
 
 
