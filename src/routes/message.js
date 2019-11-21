@@ -43,7 +43,7 @@ router.delete('/delete', async (req,res) => {
     try{
         const o_ID = await new mongo.ObjectID(id);
         var message = await Message.findByIdAndRemove(o_ID,{useFindAndModify:false});
-        res.status(200).send('delete success');
+        res.status(200).send(message);
     }catch(error){
         console.log(error);
         res.status(400).send('Error: something went wrong');
@@ -55,8 +55,7 @@ router.patch('/edit', async (req,res) => {
     const updateText = req.body.text;
     try {
         const o_ID = await new mongo.ObjectID(id);
-        var message = await Message.findByIdAndUpdate(o_ID,{text:updateText},{useFindAndModify:false});
-        var message = await Message.findById(o_ID);
+        const message = await Message.findOneAndUpdate({_id:o_ID},{text:updateText},{useFindAndModify:false, new:true});
         if(!message){
             res.status(400).send('Error: message with corresponding ID does not exist');
         }else{
