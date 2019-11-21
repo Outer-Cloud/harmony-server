@@ -25,7 +25,11 @@ router.get('/get', async (req,res) => {
     try {
         const o_ID = await new mongo.ObjectID(id);
         const message = await Message.findById(o_ID);
-        if(!message){
+if(!message){
+          return res.status(400).send('Error: message with corresponding ID does not exist');
+}
+res.status(200).send(message);  
+     
             res.status(400).send('Error: message with corresponding ID does not exist');
         }else{
             res.status(200).send(message);  
