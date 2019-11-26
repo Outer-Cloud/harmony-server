@@ -19,6 +19,22 @@ router.post('/',async (req, res) => {
 
 })
 
+router.post('/insertMany', async(req,res) => {
+    const messages = req.body;
+    try {
+        const response = await Message.insertMany(messages);
+        res.status(200).send(response);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+    
+})
+
+router.get('/dump', async(req,res) =>{
+    const messages = await Message.find();
+    res.status(200).send(messages);
+})
+
 router.get('/get', async (req,res) => {
     const id = req.body.id;
     try {
