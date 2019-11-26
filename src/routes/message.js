@@ -30,11 +30,6 @@ router.post('/insertMany', async(req,res) => {
     
 })
 
-router.get('/dump', async(req,res) =>{
-    const messages = await Message.find();
-    res.status(200).send(messages);
-})
-
 router.get('/get', async (req,res) => {
     const id = req.body.id;
     try {
