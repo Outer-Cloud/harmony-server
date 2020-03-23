@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
 
-const MONGO_DB = 'mongodb://localhost/test';
-
-module.exports = () => {
-    mongoose.connect(MONGO_DB, {
+module.exports = ['dbUrl', (dbUrl) => {
+    return mongoose.createConnection(dbUrl, {
         useNewUrlParser: true,
         useCreateIndex: true,
         useUnifiedTopology: true
     });
-}
+}];

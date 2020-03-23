@@ -10,16 +10,18 @@ const messageSchema = new mongoose.Schema({
         required: true,
         ref: 'User'
     },
-    channel: {
+    room: {
         type: mongoose.Schema.ObjectId,
         required: true,
-        ref: 'Channel'
+        ref: 'Room'
+    },
+    isPinned: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 
-
-
-
-const Message = mongoose.model('Message',messageSchema);
-
-module.exports = Message;
+module.exports = ['connection', (connection) => {
+    return connection.model('Message', messageSchema);
+}]
