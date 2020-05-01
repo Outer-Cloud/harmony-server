@@ -1,17 +1,16 @@
 
 const express = require('express');
-const auth = require('../middleware/authorization');
 
-module.exports = ['userController', 'auth', (userController, auth, ) => {
+module.exports = ['userController', 'cert', (userController, cert) => {
     const router = new express.Router();
 
-    router.post('/', auth, userController.save(req, res, next));
+    router.post('/', cert, userController.createUser);
 
-    router.get('/:id', userController.get(req, res, next));
+    router.get('/:id', cert, userController.getUserById);
 
-    router.put('/:relationship', userController.addRelationship(req, res, next));
+    router.post('/add-user-dm', cert, userController.addDM);
 
-    router.delete('/:relationship', userController.removeRelationship(req, res, next));
+    router.post('/add-friend-user', cert, userController.addFriend)
 
     return router;
 }];

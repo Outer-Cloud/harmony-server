@@ -1,19 +1,12 @@
 const express = require('express');
-const auth = require('../middleware/authorization');
 
-module.exports = (userController) => {
+module.exports = ['profileController', 'auth', (profileController, auth) => {
     const router = new express.Router();
 
-    router.get('/me', auth, (req, res) => {
-       userController.get(req, res);
-    });
+    router.get('/me', auth, profileController.get);
+    router.put('/me', auth, profileController.put);
+    router.delete('/me', auth, profileController.delete);
 
-    router.put('/me', auth, async (req, res) => {
-        userController.update(req, res);
-    });
-
-    router.delete('/me', auth, async (req, res) => {
-        userController.delete(req, res);
-    });
-};
+    return router;
+}];
 

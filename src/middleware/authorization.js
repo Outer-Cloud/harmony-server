@@ -1,16 +1,26 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'assdd3d21erfadffefgaeeva';
+const errors = require('../error/errors');
 
-module.exports =  async (req, res, next) => {
+module.exports = ['userController', (loginController) => {
     
-    try {
-        const token = req.header('Authorization').replace('Bearer ', '');
-        const decoded = jwt.verify(token, JWT_SECRET);
+    return async (req, res, next) => {
+        try {
+            const token = req.header('Authorization').replace('Bearer ', '');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        req.token = decoded;
-        next();
-    } catch (err) {
-        res.status(401).send('Not authorized. Please authenticate');
+            const isValidToken = await loginController.checkToken(decoded._id, token);
+
+            if (!isValidToken) {
+                throw new error(errors.PLEASE_AUTHENTICATE);
+            }
+
+            req.auth.id = decoded._id;
+            req.auth.profile = decoded.profile;
+            req.auth.token = token;
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
-};
+}];
