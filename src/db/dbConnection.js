@@ -1,9 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-module.exports = ['dbUrl', (dbUrl) => {
+module.exports = [
+  "dbUrl",
+  (dbUrl) => {
     return mongoose.createConnection(dbUrl, {
-        useNewUrlParser: true,
-        useCreateIndex: true,
-        useUnifiedTopology: true
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true,
     });
-}];
+  },
+];

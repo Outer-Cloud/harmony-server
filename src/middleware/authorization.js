@@ -1,26 +1,47 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const errors = require('../error/errors');
+const errors = require("../utils/error/errors");
 
-module.exports = ['userController', (loginController) => {
-    
+const loginError = new Error(errors.PLEASE_AUTHENTICATE);
+loginError.name = errors.PLEASE_AUTHENTICATE;
+
+module.exports = [
+  "loginController",
+  "JWT_SECRET",
+  (loginController, JWT_SECRET) => {
+    const safeParse = (req) => {
+      try {
+        return req.header("Authorization").replace("Bearer ", "");
+      } catch {
+        throw loginError;
+      }
+    };
+
     return async (req, res, next) => {
-        try {
-            const token = req.header('Authorization').replace('Bearer ', '');
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      try {
+        const token = safeParse(req);
+        const decoded = jwt.verify(token, JWT_SECRET);
 
-            const isValidToken = await loginController.checkToken(decoded._id, token);
+        const { isValid, profile } = await loginController.checkToken(
+          decoded._id,
+          token
+        );
 
-            if (!isValidToken) {
-                throw new error(errors.PLEASE_AUTHENTICATE);
-            }
-
-            req.auth.id = decoded._id;
-            req.auth.profile = decoded.profile;
-            req.auth.token = token;
-            next();
-        } catch (error) {
-            next(error);
+        if (!isValid) {
+          throw loginError;
         }
-    }
-}];
+
+        req.auth = {
+          id: decoded._id,
+          profile: profile,
+          token: token,
+        };
+
+        next();
+      } catch (error) {
+        console.log(error);
+        next(error);
+      }
+    };
+  },
+];
