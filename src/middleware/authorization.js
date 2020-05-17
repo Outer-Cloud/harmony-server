@@ -1,27 +1,47 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const User = require('../schemas/user');
+const errors = require("../utils/error/errors");
 
-const JWT_SECRET = 'assdd3d21erfadffefgaeeva';
+const loginError = new Error(errors.PLEASE_AUTHENTICATE);
+loginError.name = errors.PLEASE_AUTHENTICATE;
 
+module.exports = [
+  "loginController",
+  "JWT_SECRET",
+  (loginController, JWT_SECRET) => {
+    const safeParse = (req) => {
+      try {
+        return req.header("Authorization").replace("Bearer ", "");
+      } catch {
+        throw loginError;
+      }
+    };
 
-const auth = async (req, res, next) => {
-    try {
-        const token = req.header('Authorization').replace('Bearer ', '');
+    return async (req, res, next) => {
+      try {
+        const token = safeParse(req);
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        const user = await User.findOne({ _id: decoded._id, 'tokens.token': token });
+        const { isValid, profile } = await loginController.checkToken(
+          decoded._id,
+          token
+        );
 
-        if (!user) {
-            throw new Error();
+        if (!isValid) {
+          throw loginError;
         }
 
-        req.user = user;
-        req.token = token;
-        next();
-    } catch (err) {
-        res.status(401).send('Not authorized. Please authenticate');
-    }
-}
+        req.auth = {
+          id: decoded._id,
+          profile: profile,
+          token: token,
+        };
 
-module.exports = auth;
+        next();
+      } catch (error) {
+        console.log(error);
+        next(error);
+      }
+    };
+  },
+];
