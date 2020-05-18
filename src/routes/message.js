@@ -1,10 +1,24 @@
-const express = require("express");
+/*const express = require("express");
 const mongo = require("mongodb");
 
 const Message = require("../schemas/message");
 
-const router = new express.Router();
+const router = new express.Router();*/
 
+module.exports = [
+  "msgController",
+  (msgController) =>{ 
+    const router = new express.Router();
+    router.post("/",msgController.newMessage);
+    router.get("/get",msgController.getMessage);
+    router.delete("/delete",msgController.deleteMessage);
+    router.patch("/edit",msgController.editMessage);
+
+  }
+]
+
+
+/*
 router.post("/", async (req, res) => {
   const newMessage = new Message({
     ...req.body,
@@ -80,4 +94,4 @@ router.patch("/edit", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = router;*/
