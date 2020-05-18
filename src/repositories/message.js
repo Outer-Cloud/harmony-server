@@ -3,14 +3,14 @@ module.exports = [
     "msgModel",
     (msgModel) => {
         return{
-            newMessage: async (opt) => {
-                const newMessage = new msgModel(opt);
+            create: async (opt) => {
+                const newMessage = new msgModel(opt.query);
                 await newMessage.save();
 
                 return newMessage;
             },
 
-            getMessage:async (opt) => {
+            get:async (opt) => {
                 const message = await msgModel.findOne(opt.query);
 
                 if (!message) {
@@ -25,14 +25,21 @@ module.exports = [
                 
             },
 
-            deleteMessage: async(opt) => {
+            delete: async(opt) => {
                 const message = await msgModel.findOne(opt.query);
                 await message.remove();
                 return message;
             },
 
-            editMessage: async(opt) =>{
-                const message = await msgModel.update(opt.query,opt.update);
+            update: async(opt) =>{
+                const message = await msgModel.findOne(opt.query);
+                const updates = Object.keys(opt.update);
+
+                message[updates] = opt.update[updates];
+
+                message.save();
+
+                return message;
 
             }
         };

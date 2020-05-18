@@ -3,33 +3,34 @@ module.exports = [
     (msgRepository) => {
         return{
             newMessage: async (req,res,next) =>{
-                try{
-                    const opt = {
-                        text: req.body,
-                        author: req.author,
-                        room: req.room,
-                        isPinned: req.isPinned
+                    const query = {
+                        text: req.body.text,
+                        author: req.body.author,
+                        room: req.body.room,
+                        isPinned: req.body.isPinned
                     };
 
-                    const result = await msgRepository.newMessage(opt);
+                    const opt = {
+                        query,
+                    };
+
+                    const result = await msgRepository.create(opt);
 
                     res.json(result);
-                }catch(error){
-                    next(error);
-                }
+                
             },
 
             getMessage: async (req,res,next) => {
                 try{
                     const query = {
-                        _id:req.oID
+                        _id:req.body.ID
                     };
 
                     const opt = {
                         query
                     };
 
-                    const message = await msgRepository.getMessage(opt);
+                    const message = await msgRepository.get(opt);
 
                     res.json(message);
                 }catch(error){
@@ -37,42 +38,35 @@ module.exports = [
                 }
             },
 
-            getMessage: async (req,res,next) => {
-                const query = {
-                    _id:req.oID
-                };
-
-                res.json(message);
-            },
             
             editMessage: async (req,res,next) => {
                 const query = {
-                    _id:req.oID
+                    _id:req.body.ID
                 };
 
                 const update = {
-                    text:req.text
+                    text:req.body.text
                 };
 
                 const opt = {
                     query,update
                 };
 
-                const ret = await msgRepository.editMessage(opt);
+                const ret = await msgRepository.update(opt);
                 res.json(ret);
             },
 
             deleteMessage: async(req,res,next) => {
 
                 const query = {
-                    _id:req.oID
+                    _id:req.body.ID
                 };
 
                 const opt = {
                     query
                 };
 
-                const ret = await msgRepository.deleteMessage(opt);
+                const ret = await msgRepository.delete(opt);
                 res.json(ret);
             }
 

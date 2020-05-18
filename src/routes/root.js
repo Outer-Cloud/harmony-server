@@ -11,7 +11,7 @@ module.exports = [
     router.use("/profile", profileRoute);
     router.use("/auth", loginRoute);
     //router.use('/users', userRoute);
-    //router.use('/message', messageRoute);
+    router.use("/message", messageRoute);
 
     return router;
   },

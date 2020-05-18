@@ -1,22 +1,25 @@
-/*const express = require("express");
-const mongo = require("mongodb");
-
-const Message = require("../schemas/message");
-
-const router = new express.Router();*/
+const express = require("express");
 
 module.exports = [
   "msgController",
   (msgController) =>{ 
     const router = new express.Router();
+
     router.post("/",msgController.newMessage);
     router.get("/get",msgController.getMessage);
     router.delete("/delete",msgController.deleteMessage);
     router.patch("/edit",msgController.editMessage);
 
-  }
-]
+    return router;
+  },
+];
 
+
+/*const mongo = require("mongodb");
+
+const Message = require("../schemas/message");
+
+const router = new express.Router();*/
 
 /*
 router.post("/", async (req, res) => {
