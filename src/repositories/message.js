@@ -25,6 +25,12 @@ module.exports = [
                 
             },
 
+            deleteMessage: async(opt) => {
+                const message = await msgModel.findOne(opt.query);
+                await message.remove();
+                return message;
+            },
+
             editMessage: async(opt) =>{
                 const message = await msgModel.update(opt.query,opt.update);
 
