@@ -25,15 +25,18 @@ container.factory("connection", require("./db/dbConnection"));
 //models
 container.factory("userModel", require("./models/user"));
 container.factory("loginModel", require("./models/login"));
+container.factory("msgModel", require("./models/message"))
 
 //repositories
 container.factory("userRepository", require("./repositories/user"));
 container.factory("loginRepository", require("./repositories/login"));
+container.factory("msgRepository", require("./repositories/message"))
 
 //controllers
 container.factory("profileController", require("./controllers/profile"));
 container.factory("loginController", require("./controllers/login"));
 container.factory("userController", require("./controllers/user"));
+container.factory("msgController", require("./controllers/message"))
 
 //routes
 container.factory("routes", require("./routes/root"));

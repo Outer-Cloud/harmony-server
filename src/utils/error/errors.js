@@ -28,6 +28,11 @@ errorInfo[(exports.TOKEN_EXPIRE = "TokenExpiredError")] = {
   message: "Token expire. Please log in again"
 };
 
+errorInfo[(exports.MESSAGE_NOT_EXIST = "MessageIDNotExistError")] = {
+  status: httpStatus.NOT_FOUND,
+  message: "Error: message with corresponding ID does not exist"
+};
+
 exports.getErrorInfo = (error) => {
   if (errorInfo.hasOwnProperty(error)) {
     return errorInfo[error];
