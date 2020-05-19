@@ -29,7 +29,7 @@ module.exports = [
             },
 
             delete: async(opt) => {
-                const message = await msgModel.findOne(opt.query);
+                const message = await get(opt);
                 await message.remove();
                 return message;
             },
