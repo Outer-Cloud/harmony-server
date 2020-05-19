@@ -12,7 +12,6 @@ container.register("dbUrl", "mongodb://127.0.0.1:27017/test");
 container.register("JWT_SECRET", process.env.JWT_SECRET || "adsfasdf123adf");
 container.register("TOKEN_LIFE_TIME",  process.env.TOKEN_LIFE_TIME || "1500");
 container.register("userRoute", {});
-//container.register("messageRoute", {});
 
 //register factories
 
