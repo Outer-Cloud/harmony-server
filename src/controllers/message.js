@@ -3,11 +3,15 @@ module.exports = [
     (msgRepository) => {
         return{
             newMessage: async (req,res,next) =>{
+
+                    const time = new Date(req.body.time);
+
                     const query = {
                         text: req.body.text,
                         author: req.body.author,
                         room: req.body.room,
-                        isPinned: req.body.isPinned
+                        isPinned: req.body.isPinned,
+                        time: time
                     };
 
                     const opt = {
