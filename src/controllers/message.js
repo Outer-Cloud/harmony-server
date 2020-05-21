@@ -24,6 +24,53 @@ module.exports = [
                 
             },
 
+            insertMany:  async (reqs,res,next) =>{
+
+                const queries = [];
+                
+                for(i in reqs.body){
+
+                    const req = reqs.body[i];
+
+                    const time = new Date(req.time);
+
+                    const query = {
+                        text: req.text,
+                        author: req.author,
+                        room: req.room,
+                        isPinned: req.isPinned,
+                        time: time
+                    };
+                    queries.push(query);
+                }
+                
+                const opt = {
+                    queries,
+                };
+
+                const result = await msgRepository.createMany(opt);
+
+                res.json(result);
+            },
+
+            getRoom: async (req,res,next) => {
+                try{
+                    const query = {
+                        room:req.body.ID
+                    };
+
+                    const opt = {
+                        query
+                    };
+
+                    const message = await msgRepository.getMessageForRoom(opt);
+
+                    res.json(message);
+                }catch(error){
+                    next(error);
+                }
+            },
+
             getMessage: async (req,res,next) => {
                 try{
                     const query = {
@@ -73,10 +120,6 @@ module.exports = [
                 const ret = await msgRepository.delete(opt);
                 res.json(ret);
             }
-
-
-
-
         };
     },
 ];

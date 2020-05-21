@@ -9,6 +9,8 @@ module.exports = [
     router.get("/get",msgController.getMessage);
     router.delete("/delete",msgController.deleteMessage);
     router.patch("/edit",msgController.editMessage);
+    router.get("/getRoom",msgController.getRoom)
+    router.post("/insertMany",msgController.insertMany);
 
     return router;
   },
