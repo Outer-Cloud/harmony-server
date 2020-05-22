@@ -18,10 +18,12 @@ module.exports = [
     return {
       create: async (req, res, next) => {
         try {
-          const profile = await userController.createProfile();
+          const { userName, ...login } = req.body;
+
+          const profile = await userController.createProfile(userName);
           const newLogin = await loginRepository.create({
             newLogin: {
-              ...req.body,
+              ...login,
               profile,
             },
           });
@@ -58,10 +60,9 @@ module.exports = [
 
       login: async (req, res, next) => {
         try {
-          const { userName, email, password } = req.body;
+          const { email, password } = req.body;
           const login = await loginRepository.findByCredentials(
             email,
-            userName,
             password
           );
           const token = await loginRepository.generateAuthToken(login);

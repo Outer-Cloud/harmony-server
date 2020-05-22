@@ -1,6 +1,17 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+  userName: {
+    type: String,
+    required: true,
+    trim: true,
+    unique: false,
+  },
+  discriminator: {
+    type: String,
+    required: true,
+    unique: false,
+  },
   name: {
     type: String,
     required: true,
@@ -62,23 +73,32 @@ const userSchema = new mongoose.Schema({
     ],
     validate: (v) => v !== null && v.length < 1000,
   },
-  requests: {
+  pending: {
     type: [
       {
-        type: mongoose.Schema.ObjectId,
-        required: true,
-        ref: "User",
+        id: {
+          type: mongoose.Schema.ObjectId,
+          required: true,
+          ref: "User",
+        },
+        type: {
+          type: String,
+          required: true,
+        },
       },
     ],
     validate: (v) => v !== null && v.length < 1000,
   },
 });
 
+userSchema.index({ userName: 1, discriminator: 1 }, { unique: true });
+
 userSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
   delete userObject._id;
+  delete userObject.__v;
 
   return userObject;
 };

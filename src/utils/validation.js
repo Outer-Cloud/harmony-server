@@ -4,8 +4,8 @@ module.exports = {
   filters: {
     base,
     loginCreation: [...base, "tokens"],
-    loginUpdate: [...base, "tokens", "userName", "profile"],
-    profileUpdate: [...base, "avatar"],
+    loginUpdate: [...base, "tokens", "profile"],
+    profileUpdate: [...base, "avatar", "discriminator"],
   },
   isValid: (query, schema, filter) => {
     const validFields = Object.keys(schema.paths).filter((field) => {

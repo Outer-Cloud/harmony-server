@@ -28,6 +28,11 @@ errorInfo[(exports.TOKEN_EXPIRE = "TokenExpiredError")] = {
   message: "Token expire. Please log in again"
 };
 
+errorInfo[(exports.USER_DOES_NOT_EXIST = "UserDoesNotExistError")] = {
+  status: httpStatus.NOT_FOUND,
+  message: "The user does not exists. Please try gain"
+};
+
 exports.getErrorInfo = (error) => {
   if (errorInfo.hasOwnProperty(error)) {
     return errorInfo[error];

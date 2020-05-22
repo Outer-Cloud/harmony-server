@@ -2,22 +2,27 @@ const constants = require("../utils/values").constants;
 
 module.exports = [
   "userRepository",
-  (userRepository) => {
+  "MAX_ALLOWED",
+  (userRepository, MAX_ALLOWED) => {
     return {
-      createProfile: async () => {
-        const newProfile = await userRepository.create({
-          user: {
-            name: constants.DEFAULT_NAME,
-            age: constants.DEFAULT_AGE,
-            language: constants.EN,
-            status: constants.STATUS_ONLINE,
-          },
-        });
+      createProfile: async (userName) => {
+        try {
+          const randInt = Math.floor(Math.random() * MAX_ALLOWED + 1);
 
-        return newProfile._id;
+          const newProfile = await userRepository.create({
+            user: {
+              userName,
+              discriminator: randInt < 1000 ? `0${randInt}` : randInt,
+              name: constants.DEFAULT_NAME,
+              age: constants.DEFAULT_AGE,
+              language: constants.EN,
+              status: constants.STATUS_ONLINE,
+            },
+          });
+
+          return newProfile._id;
+        } catch (error) {}
       },
-
-      addToUserFriendList: async (req, res, next) => {},
 
       getUserById: async (req, res, next) => {},
     };
