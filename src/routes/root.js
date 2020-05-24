@@ -13,7 +13,7 @@ module.exports = [
     router.use("/auth", loginRoute);
     router.use("/relationship", relationshipRoute);
     //router.use('/users', userRoute);
-    //router.use('/message', messageRoute);
+    router.use("/message", messageRoute);
 
     return router;
   },

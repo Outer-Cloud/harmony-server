@@ -33,6 +33,11 @@ errorInfo[(exports.USER_DOES_NOT_EXIST = "UserDoesNotExistError")] = {
   message: "The user does not exists. Please try gain"
 };
 
+errorInfo[(exports.MESSAGE_NOT_EXIST = "MessageIDNotExistError")] = {
+  status: httpStatus.NOT_FOUND,
+  message: "Error: message with corresponding ID does not exist"
+};
+
 exports.getErrorInfo = (error) => {
   if (errorInfo.hasOwnProperty(error)) {
     return errorInfo[error];

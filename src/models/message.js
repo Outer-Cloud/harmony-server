@@ -15,6 +15,10 @@ const messageSchema = new mongoose.Schema({
     required: true,
     ref: "Room",
   },
+  time: {
+    type: Date,
+    required: true,
+  },
   isPinned: {
     type: Boolean,
     required: true,
