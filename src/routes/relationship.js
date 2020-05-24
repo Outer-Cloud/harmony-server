@@ -11,6 +11,8 @@ module.exports = [
     router.post("/add-friend", auth, relationshipController.addFriend);
 
     router.put("/accept-request", auth, relationshipController.acceptRequest);
+    
+    router.delete("/remove-request/:id", auth, relationshipController.removeRequest);
 
     router.delete("/remove-friend/:id", auth, relationshipController.deleteFriend);
 

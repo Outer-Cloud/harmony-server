@@ -21,7 +21,8 @@ module.exports = [
           });
 
           return newProfile._id;
-        } catch (error) {}
+        } catch (error) {
+        }
       },
 
       getUserById: async (req, res, next) => {},

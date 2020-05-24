@@ -1,7 +1,5 @@
 const errors = require("../utils/error/errors");
-
-const OUTBOUND_REQUEST = "OUTBOUND_REQUEST";
-const INBOUND_REQUEST = "INBOUND_REQUEST";
+const { OUTBOUND_REQUEST, INBOUND_REQUEST } = require("../utils/values").constants;
 
 module.exports = [
   "userRepository",
@@ -75,6 +73,18 @@ module.exports = [
 
           res.send();
         } catch (error) {
+          next(error);
+        }
+      },
+      removeRequest: async (req, res, next) => {
+        try {
+          const friendId = req.params.id;
+
+          await userRepository.removeFromPending(req.auth.profile, friendId);
+
+          res.send();
+        } catch (error) {
+          console.log(error);
           next(error);
         }
       },

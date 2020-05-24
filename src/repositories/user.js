@@ -1,4 +1,5 @@
 const { isValid, filters } = require("../utils/validation");
+const { OUTBOUND_REQUEST } = require("../utils/values").constants;
 const errors = require("../utils/error/errors");
 
 module.exports = [
@@ -11,6 +12,36 @@ module.exports = [
         .lean(opts.lean);
 
       return user;
+    };
+
+    const removeFromPending = async (subjectId, toRemoveId) => {
+      const subjectOpts = {
+        query: {
+          _id: subjectId,
+        },
+      };
+
+      const subject = await get(subjectOpts);
+
+      const toRemoveIndex = subject.pending.findIndex(
+        (request) => request.id.toString() === toRemoveId.toString()
+      );
+
+      if (toRemoveIndex === -1) {
+        const error = new Error(errors.USER_DOES_NOT_EXIST);
+        error.name = errors.USER_DOES_NOT_EXIST;
+        throw error;
+      }
+
+      const toRemove = subject.pending[toRemoveIndex];
+
+      if (toRemove.type === OUTBOUND_REQUEST) {
+        removeFromPending(toRemoveId, subjectId);
+      }
+
+      subject.pending.splice(toRemoveIndex, 1);
+
+      await subject.save();
     };
 
     return {
@@ -67,6 +98,8 @@ module.exports = [
         }
       },
 
+      removeFromPending,
+
       addFriend: async (subjectId, toAddId) => {
         const subjectOpts = { query: { _id: subjectId } };
         const subject = await get(subjectOpts);
@@ -82,10 +115,6 @@ module.exports = [
       removeFriend: async (subjectId, toRemoveId) => {
         const subjectOpts = { query: { _id: subjectId } };
         const subject = await get(subjectOpts);
-
-        subject.pending = subject.pending.filter(
-          (request) => request.id.toString() !== toRemoveId.toString()
-        );
 
         subject.friends = subject.friends.filter(
           (friend) => friend.toString() !== toRemoveId.toString()
