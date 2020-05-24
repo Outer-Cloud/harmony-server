@@ -1,24 +1,24 @@
 const express = require("express");
 
 module.exports = [
-  "userController",
+  "relationshipController",
   "auth",
-  (userController, auth) => {
+  (relationshipController, auth) => {
     const router = new express.Router();
 
-    router.post("/add-friend", userController.addRelationship(req, res, next));
+    router.get("/", auth, relationshipController.getRelationships);
 
-    router.delete(
-      "/remove-friend",
-      userController.removeRelationship(req, res, next)
-    );
+    router.post("/add-friend", auth, relationshipController.addFriend);
 
-    router.post("/block-user", userController.addRelationship(req, res, next));
+    router.put("/accept-request", auth, relationshipController.acceptRequest);
+    
+    router.delete("/remove-request/:id", auth, relationshipController.removeRequest);
 
-    router.delete(
-      "/unblock-user",
-      userController.removeRelationship(req, res, next)
-    );
+    router.delete("/remove-friend/:id", auth, relationshipController.deleteFriend);
+
+    router.post("/block-user", auth, relationshipController.blockUser);
+
+    router.delete("/unblock-user/:id", auth, relationshipController.unblockUser);
 
     return router;
   },

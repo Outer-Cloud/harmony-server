@@ -8,8 +8,20 @@ module.exports = [
             _id: req.auth.profile,
           };
 
+          const projection = {
+            servers: 0,
+            directMessages: 0,
+            friends: 0,
+            blocked: 0,
+            pending: 0,
+            _id: 0,
+            __v: 0,
+          };
+
           const opts = {
             query,
+            projection,
+            lean: true,
           };
 
           const result = await userRepository.get(opts);

@@ -72,8 +72,8 @@ module.exports = [
       login.save();
     };
 
-    const findByCredentials = async (email, userName, password) => {
-      const query = _.pickBy({ email, userName }, (val) => val);
+    const findByCredentials = async (email, password) => {
+      const query = { email };
       const login = await get({ query });
 
       if (!login) {
@@ -102,7 +102,7 @@ module.exports = [
         JWT_SECRET
       );
 
-      login.tokens = login.tokens.concat({token});
+      login.tokens = login.tokens.concat({ token });
       login.save();
       return token;
     };
