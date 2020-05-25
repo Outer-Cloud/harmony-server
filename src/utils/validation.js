@@ -3,8 +3,8 @@ const base = ["_id", "__v"];
 module.exports = {
   filters: {
     base,
-    loginCreation: [...base, "tokens"],
-    loginUpdate: [...base, "tokens", "profile"],
+    accountCreation: [...base, "tokens"],
+    accountUpdate: [...base, "tokens", "profile"],
     profileUpdate: [...base, "avatar", "discriminator"],
   },
   isValid: (query, schema, filter) => {

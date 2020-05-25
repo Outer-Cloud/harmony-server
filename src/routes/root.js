@@ -4,13 +4,13 @@ module.exports = [
   "profileRoute",
   "userRoute",
   "messageRoute",
-  "loginRoute",
+  "accountRoute",
   "relationshipRoute",
-  (profileRoute, userRoute, messageRoute, loginRoute, relationshipRoute) => {
+  (profileRoute, userRoute, messageRoute, accountRoute, relationshipRoute) => {
     const router = new express.Router();
 
     router.use("/profile", profileRoute);
-    router.use("/auth", loginRoute);
+    router.use("/auth", accountRoute);
     router.use("/relationship", relationshipRoute);
     //router.use('/users', userRoute);
     router.use("/message", messageRoute);

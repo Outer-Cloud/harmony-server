@@ -6,104 +6,104 @@ const errors = require("../utils/error/errors");
 const { isValid, filters } = require("../utils/validation");
 
 module.exports = [
-  "loginModel",
+  "accountModel",
   "JWT_SECRET",
   "TOKEN_LIFE_TIME",
-  (loginModel, JWT_SECRET, TOKEN_LIFE_TIME) => {
+  (accountModel, JWT_SECRET, TOKEN_LIFE_TIME) => {
     const create = async (opts) => {
-      if (!isValid(opts.newLogin, loginModel.schema, filters.loginCreation)) {
+      if (!isValid(opts.newAccount, accountModel.schema, filters.accountCreation)) {
         throw new Error(errors.INVALID_OBJECT);
       }
 
-      const newLogin = new loginModel(opts.newLogin);
-      newLogin.password = await bcrypt.hash(newLogin.password, 8);
-      await newLogin.save();
+      const newAccount = new accountModel(opts.newAccount);
+      newAccount.password = await bcrypt.hash(newAccount.password, 8);
+      await newAccount.save();
 
-      return newLogin;
+      return newAccount;
     };
 
     const get = async (opts) => {
-      const login = await loginModel
+      const account = await accountModel
         .findOne(opts.query)
         .select(opts.projection)
         .lean(opts.lean);
-      return login;
+      return account;
     };
 
     const update = async (opts) => {
-      if (!isValid(opts.updates, loginModel.schema, filters.loginUpdate)) {
+      if (!isValid(opts.updates, accountModel.schema, filters.accountUpdate)) {
         throw new Error(errors.INVALID_UPDATES);
       }
 
       const updates = Object.keys(opts.updates);
 
-      const login = await get({ query: opts.query });
+      const account = await get({ query: opts.query });
 
       updates.forEach((update) => {
-        login[update] = opts.updates[update];
+        account[update] = opts.updates[update];
       });
 
-      if (login.isDirectModified("password")) {
-        login.password = await bcrypt.hash(login.password, 8);
+      if (account.isDirectModified("password")) {
+        account.password = await bcrypt.hash(account.password, 8);
       }
 
-      await login.save();
+      await account.save();
     };
 
     const deleteObj = async (opts) => {
-      const login = await get({ query: opts.query });
-      await login.remove();
+      const account = await get({ query: opts.query });
+      await account.remove();
 
-      return login;
+      return account;
     };
 
     const deleteTokens = async (opts) => {
       const { query, filter, removeAll } = opts;
-      const login = await get({ query, filter });
+      const account = await get({ query, filter });
 
       if (removeAll) {
-        login.tokens = [];
+        account.tokens = [];
       } else {
-        login.tokens = login.tokens.filter(
+        account.tokens = account.tokens.filter(
           (token) => token.token !== query["tokens.token"]
         );
       }
 
-      login.save();
+      account.save();
     };
 
     const findByCredentials = async (email, password) => {
       const query = { email };
-      const login = await get({ query });
+      const account = await get({ query });
 
-      if (!login) {
+      if (!account) {
         throw new Error(errors.LOGIN_FAILED);
       }
 
-      const isMatch = await bcrypt.compare(password, login.password);
+      const isMatch = await bcrypt.compare(password, account.password);
 
       if (!isMatch) {
         throw new Error(errors.LOGIN_FAILED);
       }
 
-      return login;
+      return account;
     };
 
-    const generateAuthToken = async (login) => {
+    const generateAuthToken = async (account) => {
       const currentDate = new Date().getTime();
       const expirationDate = new Date(currentDate + TOKEN_LIFE_TIME * 1000);
 
       const token = jwt.sign(
         {
-          _id: login._id.toString(),
+          _id: account._id.toString(),
           exp: expirationDate.getTime() / 1000,
           iat: currentDate / 1000,
         },
         JWT_SECRET
       );
 
-      login.tokens = login.tokens.concat({ token });
-      login.save();
+      account.tokens = account.tokens.concat({ token });
+      account.save();
       return token;
     };
 

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 
-const loginSchema = new mongoose.Schema({
+const accountSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
@@ -41,18 +41,18 @@ const loginSchema = new mongoose.Schema({
   },
 });
 
-loginSchema.methods.toJSON = function () {
-  const login = this;
-  const loginObject = login.toObject();
+accountSchema.methods.toJSON = function () {
+  const account = this;
+  const accountObject = account.toObject();
 
-  delete loginObject._id;
+  delete accountObject._id;
 
-  return loginObject;
+  return accountObject;
 };
 
 module.exports = [
   "connection",
   (connection) => {
-    return connection.model("Login", loginSchema);
+    return connection.model("Account", accountSchema);
   },
 ];
