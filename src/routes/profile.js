@@ -6,9 +6,9 @@ module.exports = [
   (profileController, auth) => {
     const router = new express.Router();
 
+    router.post("/me", auth, profileController.create);
     router.get("/me", auth, profileController.get);
     router.put("/me", auth, profileController.update);
-    router.delete("/me", auth, profileController.delete);
 
     return router;
   },

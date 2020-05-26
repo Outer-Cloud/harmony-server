@@ -2,8 +2,9 @@ const httpStatus = require("../utils/httpStatus");
 
 module.exports = [
   "accountRepository",
-  "userController",
-  (accountRepository, userController) => {
+  "userRepository",
+  "MAX_ALLOWED",
+  (accountRepository, userRepository, MAX_ALLOWED) => {
     const getTokenQuery = (id, token) => {
       return {
         _id: id,
@@ -18,13 +19,12 @@ module.exports = [
     return {
       create: async (req, res, next) => {
         try {
-          const { userName, ...account } = req.body;
+          const randInt = Math.floor(Math.random() * MAX_ALLOWED + 1);
 
-          const profile = await userController.createProfile(userName);
           const newAccount = await accountRepository.create({
             newAccount: {
-              ...account,
-              profile,
+              ...req.body,
+              discriminator: randInt < 1000 ? `0${randInt}` : randInt,
             },
           });
           const token = await accountRepository.generateAuthToken(newAccount);
@@ -52,6 +52,7 @@ module.exports = [
       delete: async (req, res, next) => {
         try {
           await accountRepository.delete({ query: { _id: req.auth.id } });
+          await userRepository.delete({ query: { account: req.auth.id } });
           res.status(httpStatus.NO_CONTENT).send();
         } catch (error) {
           next(error);
@@ -110,10 +111,10 @@ module.exports = [
         const login = await accountRepository.get(opts);
 
         if (login) {
-          return { isValid: true, profile: login.profile };
+          return true;
         }
 
-        return { isValid: false };
+        return false;
       },
     };
   },

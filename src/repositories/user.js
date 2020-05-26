@@ -1,4 +1,4 @@
-const { isValid, filters } = require("../utils/validation");
+const { isValid, invalid } = require("../utils/validation");
 const { OUTBOUND_REQUEST } = require("../utils/values").constants;
 const errors = require("../utils/error/errors");
 
@@ -17,7 +17,7 @@ module.exports = [
     const removeFromPending = async (subjectId, toRemoveId) => {
       const subjectOpts = {
         query: {
-          _id: subjectId,
+          account: subjectId,
         },
       };
 
@@ -54,7 +54,7 @@ module.exports = [
       },
 
       update: async (opts) => {
-        if (!isValid(opts.updates, userModel.schema, filters.profileUpdate)) {
+        if (!isValid(opts.updates, userModel.schema, invalid.profile)) {
           throw new Error("Invalid updates");
         }
 
@@ -76,16 +76,10 @@ module.exports = [
         return user;
       },
 
-      getUserId: async (opts) => {
-        const user =
-          (await get({ query: { ...opts }, projection: { _id: 1 } })) || {};
-        return user._id;
-      },
-
       addToPending: async (subjectId, toAddId, type) => {
         const subjectOpts = {
           query: {
-            _id: subjectId,
+            account: subjectId,
             "pending.id": { $ne: toAddId },
             friends: { $ne: toAddId },
           },
@@ -101,7 +95,7 @@ module.exports = [
       removeFromPending,
 
       addFriend: async (subjectId, toAddId) => {
-        const subjectOpts = { query: { _id: subjectId } };
+        const subjectOpts = { query: { account: subjectId } };
         const subject = await get(subjectOpts);
 
         subject.pending = subject.pending.filter(
@@ -113,7 +107,7 @@ module.exports = [
       },
 
       removeFriend: async (subjectId, toRemoveId) => {
-        const subjectOpts = { query: { _id: subjectId } };
+        const subjectOpts = { query: { account: subjectId } };
         const subject = await get(subjectOpts);
 
         subject.friends = subject.friends.filter(
@@ -125,7 +119,7 @@ module.exports = [
 
       blockUser: async (subjectId, toBlockId) => {
         const subjectOpts = {
-          query: { _id: subjectId, blocked: { $ne: toBlockId } },
+          query: { account: subjectId, blocked: { $ne: toBlockId } },
         };
         const subject = await get(subjectOpts);
 
@@ -136,7 +130,7 @@ module.exports = [
       },
 
       unblockUser: async (subjectId, toUnblockId) => {
-        const subjectOpts = { query: { _id: subjectId } };
+        const subjectOpts = { query: { account: subjectId } };
         const subject = await get(subjectOpts);
 
         subject.blocked = subject.blocked.filter(

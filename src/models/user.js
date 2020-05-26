@@ -1,17 +1,6 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  userName: {
-    type: String,
-    required: true,
-    trim: true,
-    unique: false,
-  },
-  discriminator: {
-    type: String,
-    required: true,
-    unique: false,
-  },
   name: {
     type: String,
     required: true,
@@ -89,9 +78,12 @@ const userSchema = new mongoose.Schema({
     ],
     validate: (v) => v !== null && v.length < 1000,
   },
+  account: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+    unique: true,
+  },
 });
-
-userSchema.index({ userName: 1, discriminator: 1 }, { unique: true });
 
 userSchema.methods.toJSON = function () {
   const user = this;

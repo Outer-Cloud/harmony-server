@@ -45,6 +45,7 @@ container.factory("routes", require("./routes/root"));
 container.factory("profileRoute", require("./routes/profile"));
 container.factory("accountRoute", require("./routes/account"));
 container.factory('relationshipRoute', require("./routes/relationship"));
+container.factory('authRoute', require("./routes/auth"));
 //container.factory('userRoute', require('./routes/user'));
 container.factory("messageRoute", require("./routes/message"));
 
