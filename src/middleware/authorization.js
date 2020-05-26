@@ -22,7 +22,7 @@ module.exports = [
         const token = safeParse(req);
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        const { isValid, profile } = await accountController.checkToken(
+        const  isValid = await accountController.checkToken(
           decoded._id,
           token
         );
@@ -33,13 +33,11 @@ module.exports = [
 
         req.auth = {
           id: decoded._id,
-          profile: profile,
           token: token,
         };
 
         next();
       } catch (error) {
-        console.log(error);
         next(error);
       }
     };

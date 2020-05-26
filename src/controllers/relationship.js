@@ -2,13 +2,14 @@ const errors = require("../utils/error/errors");
 const { OUTBOUND_REQUEST, INBOUND_REQUEST } = require("../utils/values").constants;
 
 module.exports = [
-  "userRepository",
-  (userRepository) => {
+  "userRepository", 
+  "accountRepository",
+  (userRepository, accountRepository) => {
     return {
       getRelationships: async (req, res, next) => {
         try {
           const query = {
-            _id: req.auth.profile,
+            account: req.auth.id,
           };
 
           const projection = {
@@ -34,11 +35,11 @@ module.exports = [
 
       addFriend: async (req, res, next) => {
         try {
-          const friendId = await userRepository.getUserId(req.body);
+          const friendId = await accountRepository.getUserId(req.body);
 
           if (
             !friendId ||
-            req.auth.profile.toString() === friendId.toString()
+            req.auth.id.toString() === friendId.toString()
           ) {
             const error = new Error(errors.USER_DOES_NOT_EXIST);
             error.name = errors.USER_DOES_NOT_EXIST;
@@ -46,19 +47,18 @@ module.exports = [
           }
 
           await userRepository.addToPending(
-            req.auth.profile,
+            req.auth.id,
             friendId,
             OUTBOUND_REQUEST
           );
           await userRepository.addToPending(
             friendId,
-            req.auth.profile,
+            req.auth.id,
             INBOUND_REQUEST
           );
 
           res.send();
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },
@@ -66,10 +66,10 @@ module.exports = [
         try {
           const { _id, ...userName } = req.body;
 
-          const friendId = _id || (await userRepository.getUserId(userName));
+          const friendId = _id || (await accountRepository.getUserId(userName));
 
-          await userRepository.addFriend(req.auth.profile, friendId);
-          await userRepository.addFriend(friendId, req.auth.profile);
+          await userRepository.addFriend(req.auth.id, friendId);
+          await userRepository.addFriend(friendId, req.auth.id);
 
           res.send();
         } catch (error) {
@@ -80,11 +80,10 @@ module.exports = [
         try {
           const friendId = req.params.id;
 
-          await userRepository.removeFromPending(req.auth.profile, friendId);
+          await userRepository.removeFromPending(req.auth.id, friendId);
 
           res.send();
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },
@@ -92,8 +91,8 @@ module.exports = [
         try {
           const friendId = req.params.id;
 
-          await userRepository.removeFriend(req.auth.profile, friendId);
-          await userRepository.removeFriend(friendId, req.auth.profile);
+          await userRepository.removeFriend(req.auth.id, friendId);
+          await userRepository.removeFriend(friendId, req.auth.id);
 
           res.send();
         } catch (error) {
@@ -104,9 +103,9 @@ module.exports = [
         try {
           const friendId = req.body._id;
 
-          await userRepository.removeFriend(req.auth.profile, friendId);
-          await userRepository.removeFriend(friendId, req.auth.profile);
-          await userRepository.blockUser(req.auth.profile, friendId);
+          await userRepository.removeFriend(req.auth.id, friendId);
+          await userRepository.removeFriend(friendId, req.auth.id);
+          await userRepository.blockUser(req.auth.id, friendId);
 
           res.send();
         } catch (error) {
@@ -117,11 +116,10 @@ module.exports = [
         try {
           const targetId = req.params.id;
 
-          await userRepository.unblockUser(req.auth.profile, targetId);
+          await userRepository.unblockUser(req.auth.id, targetId);
 
           res.send();
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },

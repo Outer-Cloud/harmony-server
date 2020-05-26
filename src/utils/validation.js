@@ -1,15 +1,14 @@
 const base = ["_id", "__v"];
 
 module.exports = {
-  filters: {
+  invalid: {
     base,
-    accountCreation: [...base, "tokens"],
-    accountUpdate: [...base, "tokens", "profile"],
-    profileUpdate: [...base, "avatar", "discriminator"],
+    account: [...base, "tokens", "discriminator"],
+    profile: [...base, "avatar", "account"],
   },
-  isValid: (query, schema, filter) => {
+  isValid: (query, schema, invalid) => {
     const validFields = Object.keys(schema.paths).filter((field) => {
-      return !filter.includes(field);
+      return !invalid.includes(field);
     });
 
     const updateFields = Object.keys(query);

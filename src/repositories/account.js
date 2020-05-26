@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const errors = require("../utils/error/errors");
-const { isValid, filters } = require("../utils/validation");
+const { isValid, invalid } = require("../utils/validation");
 
 module.exports = [
   "accountModel",
@@ -11,10 +11,6 @@ module.exports = [
   "TOKEN_LIFE_TIME",
   (accountModel, JWT_SECRET, TOKEN_LIFE_TIME) => {
     const create = async (opts) => {
-      if (!isValid(opts.newAccount, accountModel.schema, filters.accountCreation)) {
-        throw new Error(errors.INVALID_OBJECT);
-      }
-
       const newAccount = new accountModel(opts.newAccount);
       newAccount.password = await bcrypt.hash(newAccount.password, 8);
       await newAccount.save();
@@ -31,7 +27,7 @@ module.exports = [
     };
 
     const update = async (opts) => {
-      if (!isValid(opts.updates, accountModel.schema, filters.accountUpdate)) {
+      if (!isValid(opts.updates, accountModel.schema, invalid.account)) {
         throw new Error(errors.INVALID_UPDATES);
       }
 
@@ -71,6 +67,12 @@ module.exports = [
 
       account.save();
     };
+
+    const getUserId = async (opts) => {
+      const account =
+        (await get({ query: { ...opts }, projection: { _id: 1 } })) || {};
+      return account._id;
+    }
 
     const findByCredentials = async (email, password) => {
       const query = { email };
@@ -112,6 +114,7 @@ module.exports = [
       update,
       delete: deleteObj,
       findByCredentials,
+      getUserId,
       get,
       generateAuthToken,
       deleteTokens,
