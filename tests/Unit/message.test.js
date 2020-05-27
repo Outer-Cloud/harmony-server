@@ -17,7 +17,7 @@ const repo = {
     return opt.query;
   },
   update: (opt) => {
-    return opt.query;
+    return opt;
   },
 };
 const functions = controller[1](repo);
@@ -45,4 +45,55 @@ test("new message normal message", async() => {
   const next = {};
   await functions.newMessage(req, res, next);
 
+});
+
+test("normal delete message",async() =>{
+  const body = {
+    ID: "5dd4dcfe36424d441068f7aa"
+  }
+  const req = {
+    body,
+  };
+  const res = {
+    json: (ret) => {
+      expect(ret._id).toEqual(body.ID);
+    },
+  };
+  const next = {};
+  await functions.deleteMessage(req, res, next);
+});
+
+test("normal edit message",async() =>{
+  const body = {
+    ID: "5dd4dcfe36424d441068f7aa",
+    text: "sdfw"
+  }
+  const req = {
+    body,
+  };
+
+  const res = {
+    json: (ret) => {
+      expect(ret.query._id).toEqual(body.ID);
+      expect(ret.update.text).toEqual(body.text)
+    },
+  };
+  const next = {};
+  await functions.editMessage(req, res, next);
+});
+
+test("normal get message",async() =>{
+  const body = {
+    ID: "5dd4dcfe36424d441068f7aa"
+  }
+  const req = {
+    body,
+  };
+  const res = {
+    json: (ret) => {
+      expect(ret._id).toEqual(body.ID);
+    },
+  };
+  const next = (error)=>{};
+  await functions.getMessage(req, res, next);
 });
