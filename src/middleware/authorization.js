@@ -6,9 +6,9 @@ const loginError = new Error(errors.PLEASE_AUTHENTICATE);
 loginError.name = errors.PLEASE_AUTHENTICATE;
 
 module.exports = [
-  "loginController",
+  "accountController",
   "JWT_SECRET",
-  (loginController, JWT_SECRET) => {
+  (accountController, JWT_SECRET) => {
     const safeParse = (req) => {
       try {
         return req.header("Authorization").replace("Bearer ", "");
@@ -22,7 +22,7 @@ module.exports = [
         const token = safeParse(req);
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        const { isValid, profile } = await loginController.checkToken(
+        const  isValid = await accountController.checkToken(
           decoded._id,
           token
         );
@@ -33,13 +33,11 @@ module.exports = [
 
         req.auth = {
           id: decoded._id,
-          profile: profile,
           token: token,
         };
 
         next();
       } catch (error) {
-        console.log(error);
         next(error);
       }
     };

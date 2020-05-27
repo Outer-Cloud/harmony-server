@@ -1,9 +1,10 @@
 const httpStatus = require("../utils/httpStatus");
 
 module.exports = [
-  "loginRepository",
-  "userController",
-  (loginRepository, userController) => {
+  "accountRepository",
+  "userRepository",
+  "MAX_ALLOWED",
+  (accountRepository, userRepository, MAX_ALLOWED) => {
     const getTokenQuery = (id, token) => {
       return {
         _id: id,
@@ -18,14 +19,15 @@ module.exports = [
     return {
       create: async (req, res, next) => {
         try {
-          const profile = await userController.createProfile();
-          const newLogin = await loginRepository.create({
-            newLogin: {
+          const randInt = Math.floor(Math.random() * MAX_ALLOWED + 1);
+
+          const newAccount = await accountRepository.create({
+            newAccount: {
               ...req.body,
-              profile,
+              discriminator: randInt < 1000 ? `0${randInt}` : randInt,
             },
           });
-          const token = await loginRepository.generateAuthToken(newLogin);
+          const token = await accountRepository.generateAuthToken(newAccount);
 
           res.status(httpStatus.CREATED).json({
             token,
@@ -37,7 +39,7 @@ module.exports = [
 
       update: async (req, res, next) => {
         try {
-          await loginRepository.update({
+          await accountRepository.update({
             updates: req.body,
             query: { _id: req.auth.id },
           });
@@ -49,7 +51,8 @@ module.exports = [
 
       delete: async (req, res, next) => {
         try {
-          await loginRepository.delete({ query: { _id: req.auth.id } });
+          await accountRepository.delete({ query: { _id: req.auth.id } });
+          await userRepository.delete({ query: { account: req.auth.id } });
           res.status(httpStatus.NO_CONTENT).send();
         } catch (error) {
           next(error);
@@ -58,13 +61,12 @@ module.exports = [
 
       login: async (req, res, next) => {
         try {
-          const { userName, email, password } = req.body;
-          const login = await loginRepository.findByCredentials(
+          const { email, password } = req.body;
+          const account = await accountRepository.findByCredentials(
             email,
-            userName,
             password
           );
-          const token = await loginRepository.generateAuthToken(login);
+          const token = await accountRepository.generateAuthToken(account);
 
           res.json({
             token,
@@ -78,7 +80,7 @@ module.exports = [
         try {
           const query = getTokenQuery(req.auth.id, req.auth.token);
 
-          await loginRepository.deleteTokens({ query, tokenFilter });
+          await accountRepository.deleteTokens({ query, tokenFilter });
           res.send();
         } catch (error) {
           next(error);
@@ -89,7 +91,7 @@ module.exports = [
         try {
           const query = getTokenQuery(req.auth.id, req.auth.token);
 
-          await loginRepository.deleteTokens({
+          await accountRepository.deleteTokens({
             query,
             tokenFilter,
             removeAll: true,
@@ -106,13 +108,13 @@ module.exports = [
           lean: true,
         };
 
-        const login = await loginRepository.get(opts);
+        const login = await accountRepository.get(opts);
 
         if (login) {
-          return { isValid: true, profile: login.profile };
+          return true;
         }
 
-        return { isValid: false };
+        return false;
       },
     };
   },

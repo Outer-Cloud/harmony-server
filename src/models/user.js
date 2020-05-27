@@ -62,15 +62,26 @@ const userSchema = new mongoose.Schema({
     ],
     validate: (v) => v !== null && v.length < 1000,
   },
-  requests: {
+  pending: {
     type: [
       {
-        type: mongoose.Schema.ObjectId,
-        required: true,
-        ref: "User",
+        id: {
+          type: mongoose.Schema.ObjectId,
+          required: true,
+          ref: "User",
+        },
+        type: {
+          type: String,
+          required: true,
+        },
       },
     ],
     validate: (v) => v !== null && v.length < 1000,
+  },
+  account: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+    unique: true,
   },
 });
 
@@ -79,6 +90,7 @@ userSchema.methods.toJSON = function () {
   const userObject = user.toObject();
 
   delete userObject._id;
+  delete userObject.__v;
 
   return userObject;
 };
