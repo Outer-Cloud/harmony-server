@@ -40,7 +40,7 @@ errorInfo[(exports.MESSAGE_NOT_EXIST = "MessageIDNotExistError")] = {
 
 errorInfo[(exports.MESSAGE_NO_TEXT = "MessageNotContainText")] = {
   status: httpStatus.BAD_REQUEST,
-  message: "Error: message with corresponding ID does not exist"
+  message: "Error: text in message body contains an empty string"
 };
 
 exports.getErrorInfo = (error) => {
