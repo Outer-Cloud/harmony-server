@@ -1,17 +1,17 @@
-const { isValid, invalid } = require("../utils/validation");
+
 const { OUTBOUND_REQUEST } = require("../utils/values").constants;
 const errors = require("../utils/error/errors");
 
 module.exports = [
-  "userModel",
-  (userModel) => {
+  "relationshipsModel",
+  (relationshipsModel) => {
     const get = async (opts) => {
-      const user = await userModel
+      const relationships = await relationshipsModel
         .findOne(opts.query)
         .select(opts.projection)
         .lean(opts.lean);
 
-      return user;
+      return relationships;
     };
 
     const removeFromPending = async (subjectId, toRemoveId) => {
@@ -46,34 +46,18 @@ module.exports = [
 
     return {
       get,
-      create: async (opts) => {
-        const newUser = new userModel(opts.user);
-        await newUser.save();
+      create: async (account) => {
+        const newRelationships = new relationshipsModel({ account });
+        await newRelationships.save();
 
-        return newUser;
-      },
-
-      update: async (opts) => {
-        if (!isValid(opts.updates, userModel.schema, invalid.profile)) {
-          throw new Error("Invalid updates");
-        }
-
-        const updates = Object.keys(opts.updates);
-
-        const user = await get({ query: opts.query });
-        updates.forEach((update) => {
-          user[update] = opts.updates[update];
-        });
-        await user.save();
-
-        return user;
+        return newRelationships;
       },
 
       delete: async (opts) => {
-        const user = await get({ query: opts.query });
-        await user.remove();
+        const relationships = await get({ query: opts.query });
+        await relationships.remove();
 
-        return user;
+        return relationships;
       },
 
       addToPending: async (subjectId, toAddId, type) => {
@@ -139,14 +123,6 @@ module.exports = [
 
         await subject.save();
       },
-
-      joinServer: async (opts) => {},
-
-      leaveServer: async (opts) => {},
-
-      leaveDM: async (opts) => {},
-
-      addUserToDM: async (opts) => {},
     };
   },
 ];
