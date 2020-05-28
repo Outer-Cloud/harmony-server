@@ -1,5 +1,4 @@
 const { isValid, invalid } = require("../utils/validation");
-const { OUTBOUND_REQUEST } = require("../utils/values").constants;
 const errors = require("../utils/error/errors");
 
 module.exports = [

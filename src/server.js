@@ -12,7 +12,6 @@ container.register("dbUrl", "mongodb://127.0.0.1:27017/test");
 container.register("JWT_SECRET", process.env.JWT_SECRET || "adsfasdf123adf");
 container.register("TOKEN_LIFE_TIME", +process.env.TOKEN_LIFE_TIME || 15000);
 container.register("MAX_ALLOWED", +process.env.MAX_ALLOWED || 10000);
-container.register("userRoute", {});
 
 //register factories
 
@@ -24,20 +23,21 @@ container.factory("connection", require("./db/dbConnection"));
 
 //models
 container.factory("profileModel", require("./models/profile"));
-container.factory("userModel", require("./models/user"));
+container.factory("relationshipsModel", require("./models/relationships"));
+container.factory("groupsModel", require("./models/groups"));
 container.factory("accountModel", require("./models/account"));
 container.factory("msgModel", require("./models/message"));
 
 //repositories
 container.factory("profileRepository", require("./repositories/profile"));
-container.factory("userRepository", require("./repositories/user"));
+container.factory("relationshipsRepository", require("./repositories/relationships"));
+container.factory("groupsRepository", require("./repositories/groups"));
 container.factory("accountRepository", require("./repositories/account"));
 container.factory("msgRepository", require("./repositories/message"));
 
 //controllers
 container.factory("profileController", require("./controllers/profile"));
 container.factory("accountController", require("./controllers/account"));
-container.factory("userController", require("./controllers/user"));
 container.factory("relationshipController", require("./controllers/relationship"));
 container.factory("msgController", require("./controllers/message"));
 
@@ -48,7 +48,6 @@ container.factory("profileRoute", require("./routes/profile"));
 container.factory("accountRoute", require("./routes/account"));
 container.factory('relationshipRoute', require("./routes/relationship"));
 container.factory('authRoute', require("./routes/auth"));
-//container.factory('userRoute', require('./routes/user'));
 container.factory("messageRoute", require("./routes/message"));
 
 const routes = container.get("routes");

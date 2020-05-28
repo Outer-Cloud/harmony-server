@@ -1,30 +1,6 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  age: {
-    type: Number,
-    required: true,
-    min: [7, "Too young"],
-  },
-  status: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  language: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  statusMessage: {
-    type: String,
-    trim: true,
-  },
+const relationshipsSchema = new mongoose.Schema({
   servers: {
     type: [
       {
@@ -85,19 +61,19 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.methods.toJSON = function () {
-  const user = this;
-  const userObject = user.toObject();
+relationshipsSchema.methods.toJSON = function () {
+  const relationships = this;
+  const relationshipsObject = relationships.toObject();
 
-  delete userObject._id;
-  delete userObject.__v;
+  delete relationshipsObject._id;
+  delete relationshipsObject.__v;
 
-  return userObject;
+  return relationshipsObject;
 };
 
 module.exports = [
   "connection",
   (connection) => {
-    return connection.model("User", userSchema);
+    return connection.model("Relationships", relationshipsSchema);
   },
 ];
