@@ -3,13 +3,13 @@ const constants = require("../utils/values").constants;
 const httpStatus = require("../utils/httpStatus");
 
 module.exports = [
-  "userRepository",
-  (userRepository) => {
+  "profileRepository",
+  (profileRepository) => {
     return {
       create: async (req, res, next) => {
         try {
-          const newProfile = await userRepository.create({
-            user: {
+          const newProfile = await profileRepository.create({
+            profile: {
               ...req.body,
               language: req.body.language || constants.EN,
               status: constants.STATUS_ONLINE,
@@ -45,7 +45,7 @@ module.exports = [
             lean: true,
           };
 
-          const result = await userRepository.get(opts);
+          const result = await profileRepository.get(opts);
 
           res.json(result || {});
         } catch (error) {
@@ -66,7 +66,7 @@ module.exports = [
             updates,
           };
 
-          const result = await userRepository.update(opt);
+          const result = await profileRepository.update(opt);
 
           res.json(result);
         } catch (error) {

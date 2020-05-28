@@ -2,9 +2,17 @@ const httpStatus = require("../utils/httpStatus");
 
 module.exports = [
   "accountRepository",
-  "userRepository",
+  "profileRepository",
+  "relationshipsRepository",
+  "groupsRepository",
   "MAX_ALLOWED",
-  (accountRepository, userRepository, MAX_ALLOWED) => {
+  (
+    accountRepository,
+    profileRepository,
+    relationshipsRepository,
+    groupsRepository,
+    MAX_ALLOWED
+  ) => {
     const getTokenQuery = (id, token) => {
       return {
         _id: id,
@@ -27,6 +35,8 @@ module.exports = [
               discriminator: randInt < 1000 ? `0${randInt}` : randInt,
             },
           });
+          await relationshipsRepository.create(newAccount._id);
+          await groupsRepository.create(newAccount._id);
           const token = await accountRepository.generateAuthToken(newAccount);
 
           res.status(httpStatus.CREATED).json({
@@ -52,7 +62,9 @@ module.exports = [
       delete: async (req, res, next) => {
         try {
           await accountRepository.delete({ query: { _id: req.auth.id } });
-          await userRepository.delete({ query: { account: req.auth.id } });
+          await profileRepository.delete({ query: { account: req.auth.id } });
+          await relationshipsRepository.delete({ query: { account: req.auth.id } });
+          await groupsRepository.delete({ query: { account: req.auth.id } });
           res.status(httpStatus.NO_CONTENT).send();
         } catch (error) {
           next(error);
