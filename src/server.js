@@ -23,11 +23,13 @@ container.factory("auth", require("./middleware/authorization"));
 container.factory("connection", require("./db/dbConnection"));
 
 //models
+container.factory("profileModel", require("./models/profile"));
 container.factory("userModel", require("./models/user"));
 container.factory("accountModel", require("./models/account"));
 container.factory("msgModel", require("./models/message"));
 
 //repositories
+container.factory("profileRepository", require("./repositories/profile"));
 container.factory("userRepository", require("./repositories/user"));
 container.factory("accountRepository", require("./repositories/account"));
 container.factory("msgRepository", require("./repositories/message"));
