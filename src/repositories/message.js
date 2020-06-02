@@ -1,4 +1,4 @@
-const errors = require("../utils/error/errors");
+
 module.exports = [
   "msgModel",
   (msgModel) => {
@@ -6,9 +6,7 @@ module.exports = [
     const get = async (opt) => {
       const message = await msgModel.findOne(opt.query);
 
-      if (!message) {
-        throw new Error(errors.MESSAGE_NOT_EXIST);
-      }
+      
 
       return message;
     };
