@@ -87,8 +87,11 @@ module.exports = [
             _id: req.body.ID,
           };
 
+          const time = new Date(req.body.time);
+
           const update = {
             text: req.body.text,
+            time
           };
 
           const opt = {

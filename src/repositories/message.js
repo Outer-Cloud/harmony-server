@@ -1,12 +1,9 @@
-
 module.exports = [
   "msgModel",
   (msgModel) => {
     //todo: catching errors
     const get = async (opt) => {
       const message = await msgModel.findOne(opt.query);
-
-      
 
       return message;
     };
@@ -51,7 +48,9 @@ module.exports = [
         const message = await get(opt);
         const updates = Object.keys(opt.update);
 
-        message[updates] = opt.update[updates];
+        updates.forEach((update) => {
+          message[update] = opt.update[update];
+        });
 
         message.save();
 
