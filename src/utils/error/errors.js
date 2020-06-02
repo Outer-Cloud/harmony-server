@@ -25,22 +25,27 @@ errorInfo[(exports.INVALID_OBJECT = "InvalidObjectError")] = {
 
 errorInfo[(exports.TOKEN_EXPIRE = "TokenExpiredError")] = {
   status: httpStatus.UNAUTHORIZED,
-  message: "Token expire. Please log in again"
+  message: "Token expire. Please log in again",
 };
 
 errorInfo[(exports.USER_DOES_NOT_EXIST = "UserDoesNotExistError")] = {
   status: httpStatus.NOT_FOUND,
-  message: "The user does not exists. Please try gain"
+  message: "The user does not exists. Please try gain",
 };
 
 errorInfo[(exports.MESSAGE_NOT_EXIST = "MessageIDNotExistError")] = {
   status: httpStatus.NOT_FOUND,
-  message: "Error: message with corresponding ID does not exist"
+  message: "Error: message with corresponding ID does not exist",
 };
 
 errorInfo[(exports.MESSAGE_NO_TEXT = "MessageNotContainText")] = {
   status: httpStatus.BAD_REQUEST,
-  message: "Error: text in message body contains an empty string"
+  message: "Error: text in message body contains an empty string",
+};
+
+error[(exports.MESSAGE_AUTHOR_ID_MISMATCH = "MessageAuthorIdMismatch")] = {
+  status: httpStatus.FORBIDDEN,
+  message: "Error: Attempt to change/delete message you did not write"
 };
 
 exports.getErrorInfo = (error) => {

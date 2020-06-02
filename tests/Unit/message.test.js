@@ -67,8 +67,8 @@ describe("new message tests", () => {
     };
     const next = (error) => {
       hasError = true;
-      const err = new Error(errors.PLEASE_AUTHENTICATE);
-      err.name = errors.PLEASE_AUTHENTICATE;
+      const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
+      err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
       expect(error).toEqual(err);
     };
     await functions.newMessage(req, res, next);
@@ -155,8 +155,8 @@ describe("delete message tests", () => {
     };
     const next = (error) => {
       hasError = true;
-      const err = new Error(errors.PLEASE_AUTHENTICATE);
-      err.name = errors.PLEASE_AUTHENTICATE;
+      const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
+      err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
       expect(error).toEqual(err);
     };
     await functions.deleteMessage(req, res, next);
@@ -241,8 +241,8 @@ describe("edit message tests", () => {
     };
     const next = (error) => {
       hasError = true;
-      const err = new Error(errors.PLEASE_AUTHENTICATE);
-      err.name = errors.PLEASE_AUTHENTICATE;
+      const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
+      err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
       expect(error).toEqual(err);
     };
     await functions.editMessage(req, res, next);
