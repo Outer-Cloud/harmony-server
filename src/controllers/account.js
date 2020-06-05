@@ -9,7 +9,7 @@ module.exports = [
     accountRepository,
     profileRepository,
     relationshipsRepository,
-    groupsRepository,
+    groupsRepository
   ) => {
     const getTokenQuery = (id, token) => {
       return {
@@ -89,8 +89,8 @@ module.exports = [
         try {
           const query = getTokenQuery(req.auth.id, req.auth.token);
 
-          await accountRepository.deleteTokens({ query, tokenFilter });
-          res.send();
+          await accountRepository.deleteTokens({ query, filter: tokenFilter });
+          res.status(httpStatus.NO_CONTENT).send();
         } catch (error) {
           next(error);
         }
@@ -102,10 +102,10 @@ module.exports = [
 
           await accountRepository.deleteTokens({
             query,
-            tokenFilter,
+            filter: tokenFilter,
             removeAll: true,
           });
-          res.send();
+          res.status(httpStatus.NO_CONTENT).send();
         } catch (error) {
           next(error);
         }
