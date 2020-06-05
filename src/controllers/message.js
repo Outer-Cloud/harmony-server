@@ -91,7 +91,7 @@ module.exports = [
 
           const update = {
             text: req.body.text,
-            time
+            time,
           };
 
           const opt = {
