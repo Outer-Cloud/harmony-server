@@ -48,6 +48,11 @@ error[(exports.MESSAGE_AUTHOR_ID_MISMATCH = "MessageAuthorIdMismatch")] = {
   message: "Error: Attempt to change/delete message you did not write"
 };
 
+errorInfo[(exports.MESSAGE_NO_TEXT = "MessageNotContainText")] = {
+  status: httpStatus.BAD_REQUEST,
+  message: "Error: text in message body contains an empty string"
+};
+
 exports.getErrorInfo = (error) => {
   if (errorInfo.hasOwnProperty(error)) {
     return errorInfo[error];
