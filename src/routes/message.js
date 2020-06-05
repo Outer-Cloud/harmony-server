@@ -6,11 +6,11 @@ module.exports = [
   (msgController, auth) => {
     const router = new express.Router();
 
-    router.post("/",  msgController.newMessage);
-    router.get("/get",  msgController.getMessage);
-    router.delete("/delete",  msgController.deleteMessage);
-    router.patch("/edit",  msgController.editMessage);
-    router.get("/getRoom",  msgController.getRoom);
+    router.post("/", auth,  msgController.newMessage);
+    router.get("/get", auth, msgController.getMessage);
+    router.delete("/delete", auth, msgController.deleteMessage);
+    router.patch("/edit", auth, msgController.editMessage);
+    router.get("/getRoom", auth, msgController.getRoom);
 
     return router;
   },
