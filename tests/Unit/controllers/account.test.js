@@ -302,6 +302,43 @@ describe("Account tests", () => {
       expect(res.json).toBeCalledWith({ token: expectedToken });
       expect(next).toHaveBeenCalledTimes(0);
     });
+    test("Should throw MISSING_EMAIL when email is missing", async () => {
+      const expectedError = new Error(errors.MISSING_EMAIL);
+      expectedError.name = errors.MISSING_EMAIL;
+
+      accountRepository.findByCredentials = jest.fn((opts) => {
+        throw expectedError;
+      });
+
+      const req = { body: {}, auth: {} };
+      const res = {};
+      const next = jest.fn();
+
+      await controller.login(req, res, next);
+
+      expect(next).toBeCalledWith(expectedError);
+    });
+    test("Should throw MISSING_PASSWORD when password is missing", async () => {
+      const expectedError = new Error(errors.MISSING_PASSWORD);
+      expectedError.name = errors.MISSING_PASSWORD;
+
+      accountRepository.findByCredentials = jest.fn((opts) => {
+        throw expectedError;
+      });
+
+      const req = {
+        body: {
+          email: "some email",
+        },
+        auth: {},
+      };
+      const res = {};
+      const next = jest.fn();
+
+      await controller.login(req, res, next);
+
+      expect(next).toBeCalledWith(expectedError);
+    });
     test("Should handle errors", async () => {
       const expectedError = new Error(errors.UNKNOWN);
       expectedError.name = errors.UNKNOWN;
@@ -310,7 +347,10 @@ describe("Account tests", () => {
         throw expectedError;
       });
 
-      const req = { body: {}, auth: {} };
+      const req = { body: {
+        email: "some email",
+        password: "some password"
+      }, auth: {} };
       const res = {};
       const next = jest.fn();
 
@@ -351,7 +391,7 @@ describe("Account tests", () => {
           tokens: 1,
         },
       });
-    
+
       expect(res.send).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
     });

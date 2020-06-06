@@ -1,4 +1,5 @@
 const httpStatus = require("../utils/httpStatus");
+const errors = require("../utils/error/errors");
 
 module.exports = [
   "accountRepository",
@@ -71,6 +72,19 @@ module.exports = [
       login: async (req, res, next) => {
         try {
           const { email, password } = req.body;
+
+          if (!email) {
+            const error = new Error(errors.MISSING_EMAIL);
+            error.name = errors.MISSING_EMAIL;
+            throw error;
+          }
+
+          if (!password) {
+            const error = new Error(errors.MISSING_PASSWORD);
+            error.name = errors.MISSING_PASSWORD;
+            throw error;
+          }
+
           const account = await accountRepository.findByCredentials(
             email,
             password
