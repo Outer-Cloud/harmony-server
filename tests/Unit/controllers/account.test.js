@@ -72,21 +72,15 @@ describe("Account tests", () => {
 
       await controller.create(req, res, next);
 
-      expect(accountRepository.create).toHaveBeenCalledTimes(1);
       expect(accountRepository.create).toBeCalledWith({
         newAccount: expectedAccount,
       });
-      expect(relationshipsRepository.create).toHaveBeenCalledTimes(1);
       expect(relationshipsRepository.create).toBeCalledWith(expectedAccountId);
-      expect(groupsRepository.create).toHaveBeenCalledTimes(1);
       expect(groupsRepository.create).toBeCalledWith(expectedAccountId);
-      expect(accountRepository.generateAuthToken).toHaveBeenCalledTimes(1);
       expect(accountRepository.generateAuthToken).toBeCalledWith(
         expectedAccount
       );
-      expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toBeCalledWith(httpStatus.CREATED);
-      expect(res.json).toHaveBeenCalledTimes(1);
       expect(res.json).toBeCalledWith({ token: expectedToken });
       expect(next).toHaveBeenCalledTimes(0);
     });
@@ -102,7 +96,6 @@ describe("Account tests", () => {
 
       await controller.create(req, res, next);
 
-      expect(next).toHaveBeenCalledTimes(1);
       expect(next).toBeCalledWith(expectedError);
     });
 
@@ -120,7 +113,6 @@ describe("Account tests", () => {
 
       await controller.create(req, res, next);
 
-      expect(next).toHaveBeenCalledTimes(1);
       expect(next).toBeCalledWith(expectedError);
     });
   });
@@ -180,7 +172,6 @@ describe("Account tests", () => {
 
       await controller.update(req, res, next);
 
-      expect(next).toHaveBeenCalledTimes(1);
       expect(next).toBeCalledWith(expectedError);
     });
     test("Should handle errors", async () => {
@@ -223,8 +214,6 @@ describe("Account tests", () => {
       expect(relationshipsRepository.delete).toHaveBeenCalledTimes(1);
       expect(groupsRepository.delete).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
-      expect(res.status).toHaveBeenCalledTimes(1);
-      expect(res.status).toBeCalledWith(httpStatus.NO_CONTENT);
       expect(res.send).toHaveBeenCalledTimes(1);
     });
     test("Should use user id from jwt", async () => {
@@ -271,7 +260,6 @@ describe("Account tests", () => {
 
       await controller.delete(req, res, next);
 
-      expect(next).toHaveBeenCalledTimes(1);
       expect(next).toBeCalledWith(expectedError);
     });
   });
@@ -304,16 +292,13 @@ describe("Account tests", () => {
 
       await controller.login(req, res, next);
 
-      expect(accountRepository.findByCredentials).toHaveBeenCalledTimes(1);
       expect(accountRepository.findByCredentials).toBeCalledWith(
         expectedEmail,
         expectedPassword
       );
-      expect(accountRepository.generateAuthToken).toHaveBeenCalledTimes(1);
       expect(accountRepository.generateAuthToken).toBeCalledWith(
         expectedAccount
       );
-      expect(res.json).toHaveBeenCalledTimes(1);
       expect(res.json).toBeCalledWith({ token: expectedToken });
       expect(next).toHaveBeenCalledTimes(0);
     });
@@ -331,7 +316,6 @@ describe("Account tests", () => {
 
       await controller.login(req, res, next);
 
-      expect(next).toHaveBeenCalledTimes(1);
       expect(next).toBeCalledWith(expectedError);
     });
   });
@@ -349,7 +333,6 @@ describe("Account tests", () => {
       };
 
       const res = {
-        status: jest.fn(() => res),
         send: jest.fn(),
       };
 
@@ -359,7 +342,6 @@ describe("Account tests", () => {
 
       await controller.logout(req, res, next);
 
-      expect(accountRepository.deleteTokens).toHaveBeenCalledTimes(1);
       expect(accountRepository.deleteTokens).toBeCalledWith({
         query: {
           _id: expectedId,
@@ -369,8 +351,7 @@ describe("Account tests", () => {
           tokens: 1,
         },
       });
-      expect(res.status).toHaveBeenCalledTimes(1);
-      expect(res.status).toBeCalledWith(httpStatus.NO_CONTENT);
+    
       expect(res.send).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
     });
@@ -388,7 +369,6 @@ describe("Account tests", () => {
 
       await controller.logout(req, res, next);
 
-      expect(next).toHaveBeenCalledTimes(1);
       expect(next).toBeCalledWith(expectedError);
     });
   });
@@ -406,7 +386,6 @@ describe("Account tests", () => {
       };
 
       const res = {
-        status: jest.fn(() => res),
         send: jest.fn(),
       };
 
@@ -416,7 +395,6 @@ describe("Account tests", () => {
 
       await controller.logoutAll(req, res, next);
 
-      expect(accountRepository.deleteTokens).toHaveBeenCalledTimes(1);
       expect(accountRepository.deleteTokens).toBeCalledWith({
         query: {
           _id: expectedId,
@@ -427,8 +405,6 @@ describe("Account tests", () => {
         },
         removeAll: true,
       });
-      expect(res.status).toHaveBeenCalledTimes(1);
-      expect(res.status).toBeCalledWith(httpStatus.NO_CONTENT);
       expect(res.send).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
     });
@@ -446,7 +422,6 @@ describe("Account tests", () => {
 
       await controller.logoutAll(req, res, next);
 
-      expect(next).toHaveBeenCalledTimes(1);
       expect(next).toBeCalledWith(expectedError);
     });
   });
@@ -462,7 +437,6 @@ describe("Account tests", () => {
 
       const isValid = await controller.checkToken(expectedId, expectedToken);
 
-      expect(accountRepository.get).toHaveBeenCalledTimes(1);
       expect(accountRepository.get).toBeCalledWith({
         query: {
           _id: expectedId,
@@ -480,7 +454,6 @@ describe("Account tests", () => {
 
       const isValid = await controller.checkToken(expectedId, expectedToken);
 
-      expect(accountRepository.get).toHaveBeenCalledTimes(1);
       expect(accountRepository.get).toBeCalledWith({
         query: {
           _id: expectedId,

@@ -62,7 +62,7 @@ module.exports = [
             query: { account: req.auth.id },
           });
           await groupsRepository.delete({ query: { account: req.auth.id } });
-          res.status(httpStatus.NO_CONTENT).send();
+          res.send();
         } catch (error) {
           next(error);
         }
@@ -90,7 +90,7 @@ module.exports = [
           const query = getTokenQuery(req.auth.id, req.auth.token);
 
           await accountRepository.deleteTokens({ query, filter: tokenFilter });
-          res.status(httpStatus.NO_CONTENT).send();
+          res.send();
         } catch (error) {
           next(error);
         }
@@ -105,7 +105,7 @@ module.exports = [
             filter: tokenFilter,
             removeAll: true,
           });
-          res.status(httpStatus.NO_CONTENT).send();
+          res.send();
         } catch (error) {
           next(error);
         }
