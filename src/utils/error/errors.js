@@ -30,7 +30,7 @@ errorInfo[(exports.TOKEN_EXPIRE = "TokenExpiredError")] = {
 
 errorInfo[(exports.USER_DOES_NOT_EXIST = "UserDoesNotExistError")] = {
   status: httpStatus.NOT_FOUND,
-  message: "The user does not exists. Please try gain",
+  message: "The user does not exists. Please try again",
 };
 
 errorInfo[(exports.MESSAGE_NOT_EXIST = "MessageIDNotExistError")] = {
@@ -45,7 +45,7 @@ errorInfo[(exports.MESSAGE_NO_TEXT = "MessageNotContainText")] = {
 
 error[(exports.MESSAGE_AUTHOR_ID_MISMATCH = "MessageAuthorIdMismatch")] = {
   status: httpStatus.FORBIDDEN,
-  message: "Error: Attempt to change/delete message you did not write"
+  message: "Error: Attempt to change/delete message you did not write",
 };
 
 exports.getErrorInfo = (error) => {

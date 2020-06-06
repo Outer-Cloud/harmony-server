@@ -11,6 +11,7 @@ module.exports = (err, req, res, next) => {
       status = httpStatus.BAD_REQUEST;
       statusMessage = httpStatus.getStatusText(status);
     }
+
   } else {
     statusMessage = httpStatus.getStatusText(status);
   }
