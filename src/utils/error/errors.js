@@ -43,7 +43,7 @@ errorInfo[(exports.MESSAGE_NO_TEXT = "MessageNotContainText")] = {
   message: "Error: text in message body contains an empty string",
 };
 
-error[(exports.MESSAGE_AUTHOR_ID_MISMATCH = "MessageAuthorIdMismatch")] = {
+errorInfo[(exports.MESSAGE_AUTHOR_ID_MISMATCH = "MessageAuthorIdMismatch")] = {
   status: httpStatus.FORBIDDEN,
   message: "Error: Attempt to change/delete message you did not write",
 };
