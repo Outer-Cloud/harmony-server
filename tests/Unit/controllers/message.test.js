@@ -1,6 +1,6 @@
 //todo: write tests
-const errors = require("../../src/utils/error/errors");
-const controller = require("../../src/controllers/message");
+const errors = require("../../../src/utils/error/errors");
+const controller = require("../../../src/controllers/message");
 const repo = {
   create: (opt) => {
     return opt.query;

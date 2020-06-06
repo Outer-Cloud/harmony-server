@@ -9,9 +9,15 @@ module.exports = [
   "accountModel",
   "JWT_SECRET",
   "TOKEN_LIFE_TIME",
-  (accountModel, JWT_SECRET, TOKEN_LIFE_TIME) => {
+  "MAX_ALLOWED",
+  (accountModel, JWT_SECRET, TOKEN_LIFE_TIME, MAX_ALLOWED) => {
     const create = async (opts) => {
-      const newAccount = new accountModel(opts.newAccount);
+      const randInt = Math.floor(Math.random() * MAX_ALLOWED + 1);
+
+      const newAccount = new accountModel({
+        ...opts.newAccount,
+        discriminator: randInt < 1000 ? `0${randInt}` : randInt,
+      });
       newAccount.password = await bcrypt.hash(newAccount.password, 8);
       await newAccount.save();
 
@@ -72,7 +78,7 @@ module.exports = [
       const account =
         (await get({ query: { ...opts }, projection: { _id: 1 } })) || {};
       return account._id;
-    }
+    };
 
     const findByCredentials = async (email, password) => {
       const query = { email };

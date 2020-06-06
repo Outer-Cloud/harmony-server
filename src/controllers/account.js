@@ -5,13 +5,11 @@ module.exports = [
   "profileRepository",
   "relationshipsRepository",
   "groupsRepository",
-  "MAX_ALLOWED",
   (
     accountRepository,
     profileRepository,
     relationshipsRepository,
-    groupsRepository,
-    MAX_ALLOWED
+    groupsRepository
   ) => {
     const getTokenQuery = (id, token) => {
       return {
@@ -27,12 +25,9 @@ module.exports = [
     return {
       create: async (req, res, next) => {
         try {
-          const randInt = Math.floor(Math.random() * MAX_ALLOWED + 1);
-
           const newAccount = await accountRepository.create({
             newAccount: {
               ...req.body,
-              discriminator: randInt < 1000 ? `0${randInt}` : randInt,
             },
           });
           await relationshipsRepository.create(newAccount._id);
@@ -63,9 +58,11 @@ module.exports = [
         try {
           await accountRepository.delete({ query: { _id: req.auth.id } });
           await profileRepository.delete({ query: { account: req.auth.id } });
-          await relationshipsRepository.delete({ query: { account: req.auth.id } });
+          await relationshipsRepository.delete({
+            query: { account: req.auth.id },
+          });
           await groupsRepository.delete({ query: { account: req.auth.id } });
-          res.status(httpStatus.NO_CONTENT).send();
+          res.send();
         } catch (error) {
           next(error);
         }
@@ -92,7 +89,7 @@ module.exports = [
         try {
           const query = getTokenQuery(req.auth.id, req.auth.token);
 
-          await accountRepository.deleteTokens({ query, tokenFilter });
+          await accountRepository.deleteTokens({ query, filter: tokenFilter });
           res.send();
         } catch (error) {
           next(error);
@@ -105,7 +102,7 @@ module.exports = [
 
           await accountRepository.deleteTokens({
             query,
-            tokenFilter,
+            filter: tokenFilter,
             removeAll: true,
           });
           res.send();
