@@ -18,6 +18,14 @@ errorInfo[(exports.INVALID_UPDATES = "InvalidUpdatesError")] = {
   status: httpStatus.BAD_REQUEST,
   message: "The update contains invalid fields",
 };
+errorInfo[(exports.MISSING_PASSWORD = "MISSING_PASSWORD")] = {
+  status: httpStatus.BAD_REQUEST,
+  message: "Missing password",
+};
+errorInfo[(exports.MISSING_EMAIL = "MISSING_EMAIL")] = {
+  status: httpStatus.BAD_REQUEST,
+  message: "Missing email",
+};
 errorInfo[(exports.INVALID_OBJECT = "InvalidObjectError")] = {
   status: httpStatus.BAD_REQUEST,
   message: "The object contains invalid fields",
