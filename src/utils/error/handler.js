@@ -4,9 +4,7 @@ const repoError = require("./repoError");
 
 module.exports = (err, req, res, next) => {
   let statusMessage;
-  let status;
-  let message;
-  let retval = { status, message };
+  let retval = {};
 
   console.log(err);
 
@@ -14,12 +12,10 @@ module.exports = (err, req, res, next) => {
 
   if (repoErr) {
     retval = repoErr;
-    statusMessage = httpStatus.getStatusText(httpStatus.BAD_REQUEST);
+    statusMessage = httpStatus.getStatusText(retval.status);
   } else {
-    const { status, message } = errors.getErrorInfo(err.name || err.message);
-    statusMessage = httpStatus.getStatusText(status);
-    retval.status = status;
-    retval.message = message;
+    retval = errors.getErrorInfo(err.name || err.message);
+    statusMessage = httpStatus.getStatusText(retval.status);
   }
   res.status(retval.status).send({
     error: statusMessage,

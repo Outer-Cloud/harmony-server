@@ -106,6 +106,12 @@ module.exports = [
             throw err;
           }
 
+          if (req.body.text === "") {
+            const err = new Error(errors.MESSAGE_NO_TEXT);
+            err.name = errors.MESSAGE_NO_TEXT;
+            throw err;
+          }
+
           const ret = await msgRepository.update(opt);
           res.json(ret);
         } catch (error) {
