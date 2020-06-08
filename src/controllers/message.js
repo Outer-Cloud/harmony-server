@@ -11,17 +11,11 @@ module.exports = [
             throw err;
           }
 
-          if (req.body.ID === req.auth._id) {
-            const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
-            err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
-            throw err;
-          }
-
           const time = new Date(req.body.time);
 
           const query = {
             text: req.body.text,
-            author: req.auth._id,
+            author: req.auth.id,
             room: req.body.room,
             isPinned: req.body.isPinned,
             time: time,
@@ -87,11 +81,8 @@ module.exports = [
             _id: req.body.ID,
           };
 
-          const time = new Date(req.body.time);
-
           const update = {
             text: req.body.text,
-            time,
           };
 
           const opt = {
@@ -109,7 +100,7 @@ module.exports = [
             throw err;
           }
 
-          if (!(message.author === req.auth.id)) {
+          if (!(message.author == req.auth.id)) {
             const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
             err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
             throw err;
@@ -140,7 +131,7 @@ module.exports = [
             throw err;
           }
 
-          if (!(message.author === req.auth.id)) {
+          if (!(message.author == req.auth.id)) {
             const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
             err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
             throw err;

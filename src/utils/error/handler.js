@@ -1,5 +1,6 @@
 const errors = require("./errors");
 const httpStatus = require("../httpStatus");
+const repoError = require("./repoError");
 
 module.exports = (err, req, res, next) => {
   let statusMessage;
@@ -7,9 +8,12 @@ module.exports = (err, req, res, next) => {
   let message;
   let retval = { status, message };
 
-  if (err.name === "MongoError") {
-    retval.status = httpStatus.BAD_REQUEST;
-    retval.message = err.message;
+  console.log(err);
+
+  const repoErr = repoError.getRepoError(err);
+
+  if (repoErr) {
+    retval = repoErr;
     statusMessage = httpStatus.getStatusText(httpStatus.BAD_REQUEST);
   } else {
     const { status, message } = errors.getErrorInfo(err.name || err.message);
@@ -18,8 +22,8 @@ module.exports = (err, req, res, next) => {
     retval.message = message;
   }
   res.status(retval.status).send({
-    error: retval.message,
-    message: statusMessage,
+    error: statusMessage,
+    message: retval.message,
     status: retval.status,
   });
 };
