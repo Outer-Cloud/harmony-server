@@ -6,8 +6,6 @@ module.exports = (err, req, res, next) => {
   let statusMessage;
   let retval = {};
 
-  console.log(err);
-
   const repoErr = repoError.getRepoError(err);
 
   if (repoErr) {
