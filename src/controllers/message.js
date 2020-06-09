@@ -70,7 +70,6 @@ module.exports = [
 
           res.json(message);
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },
