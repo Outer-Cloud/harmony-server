@@ -10,6 +10,7 @@ describe("message tests", () => {
     functions = controller[1](repo);
   });
 
+
   describe("new message tests", () => {
     test("new message normal message", async () => {
       const time = new Date(1590021724501);
@@ -21,6 +22,7 @@ describe("message tests", () => {
         time,
         //time: 1590021724501
       };
+
 
       const req = {
         body,
@@ -66,6 +68,7 @@ describe("message tests", () => {
       await functions.newMessage(req, res, next);
       expect(hasError).toBe(true);
     });
+
   });
 
   describe("delete message tests", () => {
