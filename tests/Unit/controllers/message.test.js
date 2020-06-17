@@ -10,7 +10,6 @@ describe("message tests", () => {
     functions = controller[1](repo);
   });
 
-
   describe("new message tests", () => {
     test("new message normal message", async () => {
       const time = new Date(1590021724501);
@@ -22,7 +21,6 @@ describe("message tests", () => {
         time,
         //time: 1590021724501
       };
-
 
       const req = {
         body,
@@ -68,25 +66,24 @@ describe("message tests", () => {
       await functions.newMessage(req, res, next);
       expect(hasError).toBe(true);
     });
-
   });
 
   describe("delete message tests", () => {
     test("normal delete message", async () => {
-      const body = {
-        ID: "5dd4dcfe36424d441068f7aa",
+      const params = {
+        id: "5dd4dcfe36424d441068f7aa",
       };
       const req = {
-        body,
+        params,
       };
       const res = {
         json: (ret) => {
-          expect(ret._id).toEqual(body.ID);
+          expect(ret._id).toEqual(params.id);
         },
       };
       repo.get = (opt) => {
         return {
-          _id: body.ID,
+          _id: params.id,
         };
       };
 
@@ -99,7 +96,7 @@ describe("message tests", () => {
 
     test("delete message not found", async () => {
       var hasError = false;
-      const body = {
+      const params = {
         ID: "5dd4dcfe36424d441068faa",
       };
       const userID = "USER_IDID";
@@ -107,7 +104,7 @@ describe("message tests", () => {
         id: userID,
       };
       const req = {
-        body,
+        params,
         auth,
       };
       repo.get = (opt) => {
@@ -128,20 +125,20 @@ describe("message tests", () => {
 
     test("delete message not allowed", async () => {
       var hasError = false;
-      const body = {
-        ID: "5dd4dcfe36424d441068faa",
+      const params = {
+        id: "5dd4dcfe36424d441068faa",
       };
       const userID = "USER_IDID";
       const auth = {
         id: userID,
       };
       const req = {
-        body,
+        params,
         auth,
       };
       repo.get = (opt) => {
         return {
-          _id: body.ID,
+          _id: params.id,
           author: "asdfsadfwerqsd",
         };
       };
@@ -162,21 +159,24 @@ describe("message tests", () => {
   describe("edit message tests", () => {
     test("normal edit message", async () => {
       const body = {
-        ID: "5dd4dcfe36424d441068f7aa",
         text: "sdfw",
+      };
+      const params = {
+        id: "5dd4dcfe36424d441068f7aa",
       };
       const userID = "USER_IDID";
       const auth = {
         id: userID,
       };
       const req = {
+        params,
         body,
         auth,
       };
 
       repo.get = (opt) => {
         return {
-          _id: body.ID,
+          _id: params.id,
           author: userID,
         };
       };
@@ -187,24 +187,29 @@ describe("message tests", () => {
 
       const res = {
         json: (ret) => {
-          expect(ret.query._id).toEqual(body.ID);
+          expect(ret.query._id).toEqual(params.id);
           expect(ret.update.text).toEqual(body.text);
         },
       };
-      const next = {};
+      const next = jest.fn(() => {});
       await functions.editMessage(req, res, next);
+      expect(next).toBeCalledTimes(0);
     });
 
     test("edit message not found", async () => {
       var hasError = false;
+      const params = {
+        id: "5dd4dcfe36424d441068faa",
+      };
       const body = {
-        ID: "5dd4dcfe36424d441068faa",
+        text: "test test",
       };
       const userID = "USER_IDID";
       const auth = {
         id: userID,
       };
       const req = {
+        params,
         body,
         auth,
       };
@@ -230,11 +235,15 @@ describe("message tests", () => {
         ID: "5dd4dcfe36424d441068f7aa",
         text: "",
       };
+      const params = {
+        id: "5dd4dcfe36424d441068f7aa",
+      };
       const userID = "USER_IDID";
       const auth = {
         id: userID,
       };
       const req = {
+        params,
         body,
         auth,
       };
@@ -262,13 +271,17 @@ describe("message tests", () => {
     test("edit message not allowed", async () => {
       var hasError = false;
       const body = {
-        ID: "5dd4dcfe36424d441068faa",
+        text: "5dd4dcfe36424dajsdfhkjwehar441068faa",
+      };
+      const params = {
+        id: "5dd4dcfe36424d441068f7aa",
       };
       const userID = "USER_IDID";
       const auth = {
         id: userID,
       };
       const req = {
+        params,
         body,
         auth,
       };
@@ -296,26 +309,26 @@ describe("message tests", () => {
 
   describe("get message tests", () => {
     test("normal get message", async () => {
-      const body = {
-        ID: "5dd4dcfe36424d441068f7aa",
+      const params = {
+        id: "5dd4dcfe36424d441068f7aa",
       };
       const userID = "USER_IDID";
       const auth = {
         id: userID,
       };
       const req = {
-        body,
+        params,
         auth,
       };
       repo.get = (opt) => {
         return {
-          _id: body.ID,
+          _id: params.id,
           author: userID,
         };
       };
       const res = {
         json: (ret) => {
-          expect(ret._id).toEqual(body.ID);
+          expect(ret._id).toEqual(params.id);
         },
       };
       const next = (error) => {};
@@ -324,15 +337,15 @@ describe("message tests", () => {
 
     test("get message not found", async () => {
       var hasError = false;
-      const body = {
-        ID: "5dd4dcfe36424d441068faa",
+      const params = {
+        id: "5dd4dcfe36424d441068faa",
       };
       const userID = "USER_IDID";
       const auth = {
         id: userID,
       };
       const req = {
-        body,
+        params,
         auth,
       };
 
