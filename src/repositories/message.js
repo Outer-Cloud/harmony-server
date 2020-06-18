@@ -1,7 +1,6 @@
 module.exports = [
   "msgModel",
   (msgModel) => {
-    //todo: catching errors
     const get = async (opt) => {
       const message = await msgModel.findOne(opt.query);
 
@@ -55,6 +54,9 @@ module.exports = [
         message.save();
 
         return message;
+      },
+      getSchema: () => {
+        return msgModel.schema.paths;
       },
     };
   },

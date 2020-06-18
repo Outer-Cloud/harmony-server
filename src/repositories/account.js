@@ -1,16 +1,7 @@
-const _ = require("lodash");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-const errors = require("../utils/error/errors");
-const { isValid, invalid } = require("../utils/validation");
-
 module.exports = [
   "accountModel",
-  "JWT_SECRET",
-  "TOKEN_LIFE_TIME",
   "MAX_ALLOWED",
-  (accountModel, JWT_SECRET, TOKEN_LIFE_TIME, MAX_ALLOWED) => {
+  (accountModel, MAX_ALLOWED) => {
     const create = async (opts) => {
       const randInt = Math.floor(Math.random() * MAX_ALLOWED + 1);
 
@@ -18,10 +9,9 @@ module.exports = [
         ...opts.newAccount,
         discriminator: randInt < 1000 ? `0${randInt}` : randInt,
       });
-      newAccount.password = await bcrypt.hash(newAccount.password, 8);
       await newAccount.save();
 
-      return newAccount;
+      return newAccount._id;
     };
 
     const get = async (opts) => {
@@ -33,10 +23,6 @@ module.exports = [
     };
 
     const update = async (opts) => {
-      if (!isValid(opts.updates, accountModel.schema, invalid.account)) {
-        throw new Error(errors.INVALID_UPDATES);
-      }
-
       const updates = Object.keys(opts.updates);
 
       const account = await get({ query: opts.query });
@@ -76,53 +62,45 @@ module.exports = [
 
     const getUserId = async (opts) => {
       const account =
-        (await get({ query: { ...opts }, projection: { _id: 1 } })) || {};
+        (await get({
+          query: { ...opts },
+          projection: { _id: 1 },
+          lean: true,
+        })) || {};
       return account._id;
     };
 
-    const findByCredentials = async (email, password) => {
+    const findByEmail = async (email) => {
       const query = { email };
-      const account = await get({ query });
+      const account = await get({ query, lean: true });
 
       if (!account) {
-        throw new Error(errors.LOGIN_FAILED);
-      }
-
-      const isMatch = await bcrypt.compare(password, account.password);
-
-      if (!isMatch) {
-        throw new Error(errors.LOGIN_FAILED);
+        return null;
       }
 
       return account;
     };
 
-    const generateAuthToken = async (account) => {
-      const currentDate = new Date().getTime();
-      const expirationDate = new Date(currentDate + TOKEN_LIFE_TIME * 1000);
-
-      const token = jwt.sign(
-        {
-          _id: account._id.toString(),
-          exp: expirationDate.getTime() / 1000,
-          iat: currentDate / 1000,
-        },
-        JWT_SECRET
-      );
-
+    const insertToken = async (id, token) => {
+      const account = await get({ query: { _id: id } });
       account.tokens = account.tokens.concat({ token });
       account.save();
       return token;
+    };
+
+    const getSchema = () => {
+      return accountModel.schema.paths;
     };
 
     return {
       create,
       update,
       delete: deleteObj,
-      findByCredentials,
+      findByEmail,
       getUserId,
+      getSchema,
       get,
-      generateAuthToken,
+      insertToken,
       deleteTokens,
     };
   },

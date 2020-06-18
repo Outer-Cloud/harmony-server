@@ -1,14 +1,28 @@
 //todo: write tests
-const errors = require("../../../src/utils/error/errors");
-const controller = require("../../../src/controllers/message");
+const errorsFactory = require("../../../src/utils/error/errors");
+const getErrorsController = errorsFactory[errorsFactory.length - 1];
+
+const msgFactory = require("../../../src/controllers/message");
+const getMsgController = msgFactory[msgFactory.length - 1];
+
+const httpStatus = require("../../../src/utils/httpStatus");
+const errors = getErrorsController(httpStatus);
+
+const errorCodes = errors.errorCodes;
+
 let repo = {};
-let functions = controller[1](repo);
+let utils = {};
+
+const expectedSchema = {
+  field1: "some value",
+};
 
 describe("message tests", () => {
+  let next = jest.fn();
+
   beforeEach(() => {
     repo = {};
-    functions = controller[1](repo);
-  });
+    utils = {};
 
   describe("new message tests", () => {
     test("new message normal message", async () => {
@@ -26,6 +40,7 @@ describe("message tests", () => {
         body,
       };
 
+    test("new message normal message", async () => {
       repo.create = (opt) => {
         return opt.query.body;
       };
@@ -36,34 +51,41 @@ describe("message tests", () => {
         },
       };
       const next = (opt) => {};
-      await functions.newMessage(req, res, next);
+      await controller.newMessage(req, res, next);
+    });
+
+    test("should throw invalid object error when new message contains invalid fields", async () => {
+      const expectedError = new Error(errorCodes.INVALID_OBJECT);
+      expectedError.name = errorCodes.INVALID_OBJECT;
+
+      utils.isValid = jest.fn(() => false);
+      controller = getMsgController(repo, utils, errors);
+
+      const res = {};
+
+      await controller.newMessage(req, res, next);
+
+      expect(utils.isValid).toBeCalledWith(
+        req.body,
+        expectedSchema,
+        utils.invalid.base
+      );
+      expect(next).toBeCalledWith(expectedError);
     });
 
     test("new message no text", async () => {
       var hasError = false;
-      const time = new Date(1590021724501);
-      const body = {
-        text: "",
-        author: "5dd4dcfe36424d441068f7aa",
-        room: "5dd4dcfe36424d441068f7aa",
-        isPinned: false,
-        time,
-        //time: 1590021724501
-      };
-      const req = {
-        body,
-      };
-
+      body.text = "";
       const res = {
-        json: (ret) => {},
+        json: () => {},
       };
       const next = (error) => {
         hasError = true;
-        const err = new Error(errors.MESSAGE_NO_TEXT);
-        err.name = errors.MESSAGE_NO_TEXT;
+        const err = new Error(errorCodes.MESSAGE_NO_TEXT);
+        err.name = errorCodes.MESSAGE_NO_TEXT;
         expect(error).toEqual(err);
       };
-      await functions.newMessage(req, res, next);
+      await controller.newMessage(req, res, next);
       expect(hasError).toBe(true);
     });
   });
@@ -91,7 +113,7 @@ describe("message tests", () => {
         return opt.query.body;
       };
       const next = (opt) => {};
-      await functions.deleteMessage(req, res, next);
+      await controller.deleteMessage(req, res, next);
     });
 
     test("delete message not found", async () => {
@@ -115,11 +137,11 @@ describe("message tests", () => {
       };
       const next = (error) => {
         hasError = true;
-        const err = new Error(errors.MESSAGE_NOT_EXIST);
-        err.name = errors.MESSAGE_NOT_EXIST;
+        const err = new Error(errorCodes.MESSAGE_NOT_EXIST);
+        err.name = errorCodes.MESSAGE_NOT_EXIST;
         expect(error).toEqual(err);
       };
-      await functions.deleteMessage(req, res, next);
+      await controller.deleteMessage(req, res, next);
       expect(hasError).toBe(true);
     });
 
@@ -147,11 +169,11 @@ describe("message tests", () => {
       };
       const next = (error) => {
         hasError = true;
-        const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
-        err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
+        const err = new Error(errorCodes.MESSAGE_AUTHOR_ID_MISMATCH);
+        err.name = errorCodes.MESSAGE_AUTHOR_ID_MISMATCH;
         expect(error).toEqual(err);
       };
-      await functions.deleteMessage(req, res, next);
+      await controller.deleteMessage(req, res, next);
       expect(hasError).toBe(true);
     });
   });
@@ -221,11 +243,11 @@ describe("message tests", () => {
       };
       const next = (error) => {
         hasError = true;
-        const err = new Error(errors.MESSAGE_NOT_EXIST);
-        err.name = errors.MESSAGE_NOT_EXIST;
+        const err = new Error(errorCodes.MESSAGE_NOT_EXIST);
+        err.name = errorCodes.MESSAGE_NOT_EXIST;
         expect(error).toEqual(err);
       };
-      await functions.editMessage(req, res, next);
+      await controller.editMessage(req, res, next);
       expect(hasError).toBe(true);
     });
 
@@ -260,11 +282,11 @@ describe("message tests", () => {
       };
       const next = (error) => {
         hasError = true;
-        const err = new Error(errors.MESSAGE_NO_TEXT);
-        err.name = errors.MESSAGE_NO_TEXT;
+        const err = new Error(errorCodes.MESSAGE_NO_TEXT);
+        err.name = errorCodes.MESSAGE_NO_TEXT;
         expect(error).toEqual(err);
       };
-      await functions.editMessage(req, res, next);
+      await controller.editMessage(req, res, next);
       expect(hasError).toBe(true);
     });
 
@@ -298,11 +320,11 @@ describe("message tests", () => {
       };
       const next = (error) => {
         hasError = true;
-        const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
-        err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
+        const err = new Error(errorCodes.MESSAGE_AUTHOR_ID_MISMATCH);
+        err.name = errorCodes.MESSAGE_AUTHOR_ID_MISMATCH;
         expect(error).toEqual(err);
       };
-      await functions.editMessage(req, res, next);
+      await controller.editMessage(req, res, next);
       expect(hasError).toBe(true);
     });
   });
@@ -332,7 +354,7 @@ describe("message tests", () => {
         },
       };
       const next = (error) => {};
-      await functions.getMessage(req, res, next);
+      await controller.getMessage(req, res, next);
     });
 
     test("get message not found", async () => {
@@ -358,11 +380,11 @@ describe("message tests", () => {
       };
       const next = (error) => {
         hasError = true;
-        const err = new Error(errors.MESSAGE_NOT_EXIST);
-        err.name = errors.MESSAGE_NOT_EXIST;
+        const err = new Error(errorCodes.MESSAGE_NOT_EXIST);
+        err.name = errorCodes.MESSAGE_NOT_EXIST;
         expect(error).toEqual(err);
       };
-      await functions.getMessage(req, res, next);
+      await controller.getMessage(req, res, next);
       expect(hasError).toBe(true);
     });
   });

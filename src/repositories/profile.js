@@ -1,6 +1,3 @@
-const { isValid, invalid } = require("../utils/validation");
-const errors = require("../utils/error/errors");
-
 module.exports = [
   "profileModel",
   (profileModel) => {
@@ -23,10 +20,6 @@ module.exports = [
       },
 
       update: async (opts) => {
-        if (!isValid(opts.updates, profileModel.schema, invalid.profile)) {
-          throw new Error("Invalid updates");
-        }
-
         const updates = Object.keys(opts.updates);
 
         const profile = await get({ query: opts.query });
@@ -43,6 +36,10 @@ module.exports = [
         await profile.remove();
 
         return profile;
+      },
+
+      getSchema: () => {
+        return profileModel.schema.paths;
       },
     };
   },

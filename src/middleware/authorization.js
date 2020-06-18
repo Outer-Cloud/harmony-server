@@ -1,14 +1,14 @@
-const jwt = require("jsonwebtoken");
-
-const errors = require("../utils/error/errors");
-
-const loginError = new Error(errors.PLEASE_AUTHENTICATE);
-loginError.name = errors.PLEASE_AUTHENTICATE;
-
 module.exports = [
+  "jsonwebtoken",
   "accountController",
+  "errors",
   "JWT_SECRET",
-  (accountController, JWT_SECRET) => {
+  (jsonwebtoken, accountController, errors, JWT_SECRET) => {
+    const errorCodes = errors.errorCodes;
+
+    const loginError = new Error(errorCodes.PLEASE_AUTHENTICATE);
+    loginError.name = errorCodes.PLEASE_AUTHENTICATE;
+
     const safeParse = (req) => {
       try {
         return req.header("Authorization").replace("Bearer ", "");
@@ -20,12 +20,9 @@ module.exports = [
     return async (req, res, next) => {
       try {
         const token = safeParse(req);
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jsonwebtoken.verify(token, JWT_SECRET);
 
-        const  isValid = await accountController.checkToken(
-          decoded._id,
-          token
-        );
+        const isValid = await accountController.checkToken(decoded._id, token);
 
         if (!isValid) {
           throw loginError;

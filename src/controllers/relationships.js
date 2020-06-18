@@ -1,10 +1,11 @@
-const errors = require("../utils/error/errors");
-const { OUTBOUND_REQUEST, INBOUND_REQUEST } = require("../utils/values").constants;
-
 module.exports = [
-  "relationshipsRepository", 
+  "relationshipsRepository",
   "accountRepository",
-  (relationshipsRepository, accountRepository) => {
+  "errors",
+  "values",
+  (relationshipsRepository, accountRepository, errors, values) => {
+    const errorCodes = errors.errorCodes;
+    const { OUTBOUND_REQUEST, INBOUND_REQUEST } = values.constants;
     return {
       getRelationships: async (req, res, next) => {
         try {
@@ -37,12 +38,9 @@ module.exports = [
         try {
           const friendId = await accountRepository.getUserId(req.body);
 
-          if (
-            !friendId ||
-            req.auth.id.toString() === friendId.toString()
-          ) {
-            const error = new Error(errors.USER_DOES_NOT_EXIST);
-            error.name = errors.USER_DOES_NOT_EXIST;
+          if (!friendId || req.auth.id.toString() === friendId.toString()) {
+            const error = new Error(errorCodes.USER_DOES_NOT_EXIST);
+            error.name = errorCodes.USER_DOES_NOT_EXIST;
             throw error;
           }
 
@@ -70,7 +68,7 @@ module.exports = [
 
           await relationshipsRepository.addFriend(friendId, req.auth.id);
           await relationshipsRepository.addFriend(req.auth.id, friendId);
-         
+
           res.send();
         } catch (error) {
           console.log(error);
@@ -81,7 +79,10 @@ module.exports = [
         try {
           const friendId = req.params.id;
 
-          await relationshipsRepository.removeFromPending(req.auth.id, friendId);
+          await relationshipsRepository.removeFromPending(
+            req.auth.id,
+            friendId
+          );
 
           res.send();
         } catch (error) {
