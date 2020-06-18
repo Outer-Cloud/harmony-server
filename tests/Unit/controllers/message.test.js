@@ -24,21 +24,33 @@ describe("message tests", () => {
     repo = {};
     utils = {};
 
-  describe("new message tests", () => {
-    test("new message normal message", async () => {
-      const time = new Date(1590021724501);
-      const body = {
-        text: "aaaaa",
-        author: "5dd4dcfe36424d441068f7aa",
-        room: "5dd4dcfe36424d441068f7aa",
-        isPinned: false,
-        time,
-        //time: 1590021724501
-      };
+    utils.invalid = {
+      base: ["field1"],
+    };
+    utils.isValid = jest.fn(() => true);
+    repo.getSchema = jest.fn(() => {
+      return expectedSchema;
+    });
 
-      const req = {
-        body,
-      };
+    next = jest.fn();
+
+    controller = getMsgController(repo, utils, errors);
+  });
+
+  describe("new message tests", () => {
+    const time = new Date(1590021724501);
+    const body = {
+      text: "aaaaa",
+      author: "5dd4dcfe36424d441068f7aa",
+      room: "5dd4dcfe36424d441068f7aa",
+      isPinned: false,
+      time,
+      //time: 1590021724501
+    };
+
+    const req = {
+      body,
+    };
 
     test("new message normal message", async () => {
       repo.create = (opt) => {
@@ -119,7 +131,7 @@ describe("message tests", () => {
     test("delete message not found", async () => {
       var hasError = false;
       const params = {
-        ID: "5dd4dcfe36424d441068faa",
+        id: "5dd4dcfe36424d441068faa",
       };
       const userID = "USER_IDID";
       const auth = {
@@ -214,7 +226,7 @@ describe("message tests", () => {
         },
       };
       const next = jest.fn(() => {});
-      await functions.editMessage(req, res, next);
+      await controller.editMessage(req, res, next);
       expect(next).toBeCalledTimes(0);
     });
 
