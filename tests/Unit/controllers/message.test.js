@@ -40,14 +40,13 @@ describe("message tests", () => {
   describe("new message tests", () => {
     const time = new Date(1590021724501);
     const body = {
-      text: "aaaaa",
+      text: "asdfasdfd",
       author: "5dd4dcfe36424d441068f7aa",
       room: "5dd4dcfe36424d441068f7aa",
       isPinned: false,
       time,
       //time: 1590021724501
     };
-
     const req = {
       body,
     };
