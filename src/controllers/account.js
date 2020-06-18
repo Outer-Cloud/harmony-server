@@ -33,6 +33,32 @@ module.exports = [
     };
 
     return {
+      get: async (req, res, next) => {
+        try {
+          const query = {
+            _id: req.auth.id,
+          };
+
+          const projection = {
+            tokens: 0,
+            password: 0,
+            _id: 0,
+            __v: 0,
+          };
+
+          const opts = {
+            query,
+            projection,
+            lean: true,
+          };
+
+          const result = await accountRepository.get(opts);
+
+          res.json(result || {});
+        } catch (error) {
+          next(error);
+        }
+      },
       create: async (req, res, next) => {
         try {
           if (!req.body.password || !isValidPassword(req.body.password)) {
