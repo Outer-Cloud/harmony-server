@@ -6,81 +6,93 @@
  *
  */
 
+const statusMessages = {};
 const statusCodes = {};
 
 //Informational 1xx (Request received, continuing process)
-statusCodes[(exports.CONTINUE = 100)] = "Continue";
-statusCodes[(exports.SWITCHING_PROTOCOLS = 101)] = "Switching Protocols";
-statusCodes[(exports.PROCESSING = 102)] = "Processing";
+statusMessages[(statusCodes.CONTINUE = 100)] = "Continue";
+statusMessages[(statusCodes.SWITCHING_PROTOCOLS = 101)] = "Switching Protocols";
+statusMessages[(statusCodes.PROCESSING = 102)] = "Processing";
 
 // Successful 2xx (The action was successfully received, understood, and accepted)
-statusCodes[(exports.OK = 200)] = "OK";
-statusCodes[(exports.CREATED = 201)] = "Created";
-statusCodes[(exports.ACCEPTED = 202)] = "Accepted";
-statusCodes[(exports.NON_AUTHORITATIVE_INFORMATION = 203)] =
+statusMessages[(statusCodes.OK = 200)] = "OK";
+statusMessages[(statusCodes.CREATED = 201)] = "Created";
+statusMessages[(statusCodes.ACCEPTED = 202)] = "Accepted";
+statusMessages[(statusCodes.NON_AUTHORITATIVE_INFORMATION = 203)] =
   "Non Authoritative Information";
-statusCodes[(exports.NO_CONTENT = 204)] = "No Content";
-statusCodes[(exports.RESET_CONTENT = 205)] = "Reset Content";
-statusCodes[(exports.PARTIAL_CONTENT = 206)] = "Partial Content";
-statusCodes[(exports.MULTI_STATUS = 207)] = "Multi-Status";
+statusMessages[(statusCodes.NO_CONTENT = 204)] = "No Content";
+statusMessages[(statusCodes.RESET_CONTENT = 205)] = "Reset Content";
+statusMessages[(statusCodes.PARTIAL_CONTENT = 206)] = "Partial Content";
+statusMessages[(statusCodes.MULTI_STATUS = 207)] = "Multi-Status";
 
 // Redirection 3xx (Further action must be taken in order to complete the request)
-statusCodes[(exports.MULTIPLE_CHOICES = 300)] = "Multiple Choices";
-statusCodes[(exports.MOVED_PERMANENTLY = 301)] = "Moved Permanently";
-statusCodes[(exports.MOVED_TEMPORARILY = 302)] = "Moved Temporarily";
-statusCodes[(exports.SEE_OTHER = 303)] = "See Other";
-statusCodes[(exports.NOT_MODIFIED = 304)] = "Not Modified";
-statusCodes[(exports.USE_PROXY = 305)] = "Use Proxy";
-statusCodes[(exports.TEMPORARY_REDIRECT = 307)] = "Temporary Redirect";
+statusMessages[(statusCodes.MULTIPLE_CHOICES = 300)] = "Multiple Choices";
+statusMessages[(statusCodes.MOVED_PERMANENTLY = 301)] = "Moved Permanently";
+statusMessages[(statusCodes.MOVED_TEMPORARILY = 302)] = "Moved Temporarily";
+statusMessages[(statusCodes.SEE_OTHER = 303)] = "See Other";
+statusMessages[(statusCodes.NOT_MODIFIED = 304)] = "Not Modified";
+statusMessages[(statusCodes.USE_PROXY = 305)] = "Use Proxy";
+statusMessages[(statusCodes.TEMPORARY_REDIRECT = 307)] = "Temporary Redirect";
 
 // Client Error 4xx (The request contains bad syntax or cannot be fulfilled)
-statusCodes[(exports.BAD_REQUEST = 400)] = "Bad Request";
-statusCodes[(exports.UNAUTHORIZED = 401)] = "Unauthorized";
-statusCodes[(exports.PAYMENT_REQUIRED = 402)] = "Payment Required";
-statusCodes[(exports.FORBIDDEN = 403)] = "Forbidden";
-statusCodes[(exports.NOT_FOUND = 404)] = "Not Found";
-statusCodes[(exports.METHOD_NOT_ALLOWED = 405)] = "Method Not Allowed";
-statusCodes[(exports.NOT_ACCEPTABLE = 406)] = "Not Acceptable";
-statusCodes[(exports.PROXY_AUTHENTICATION_REQUIRED = 407)] =
+statusMessages[(statusCodes.BAD_REQUEST = 400)] = "Bad Request";
+statusMessages[(statusCodes.UNAUTHORIZED = 401)] = "Unauthorized";
+statusMessages[(statusCodes.PAYMENT_REQUIRED = 402)] = "Payment Required";
+statusMessages[(statusCodes.FORBIDDEN = 403)] = "Forbidden";
+statusMessages[(statusCodes.NOT_FOUND = 404)] = "Not Found";
+statusMessages[(statusCodes.METHOD_NOT_ALLOWED = 405)] = "Method Not Allowed";
+statusMessages[(statusCodes.NOT_ACCEPTABLE = 406)] = "Not Acceptable";
+statusMessages[(statusCodes.PROXY_AUTHENTICATION_REQUIRED = 407)] =
   "Proxy Authentication Required";
-statusCodes[(exports.REQUEST_TIMEOUT = 408)] = "Request Timeout";
-statusCodes[(exports.CONFLICT = 409)] = "Conflict";
-statusCodes[(exports.GONE = 410)] = "Gone";
-statusCodes[(exports.LENGTH_REQUIRED = 411)] = "Length Required";
-statusCodes[(exports.PRECONDITION_FAILED = 412)] = "Precondition Failed";
-statusCodes[(exports.REQUEST_TOO_LONG = 413)] = "Request Entity Too Large";
-statusCodes[(exports.REQUEST_URI_TOO_LONG = 414)] = "Request-URI Too Long";
-statusCodes[(exports.UNSUPPORTED_MEDIA_TYPE = 415)] = "Unsupported Media Type";
-statusCodes[(exports.REQUESTED_RANGE_NOT_SATISFIABLE = 416)] =
+statusMessages[(statusCodes.REQUEST_TIMEOUT = 408)] = "Request Timeout";
+statusMessages[(statusCodes.CONFLICT = 409)] = "Conflict";
+statusMessages[(statusCodes.GONE = 410)] = "Gone";
+statusMessages[(statusCodes.LENGTH_REQUIRED = 411)] = "Length Required";
+statusMessages[(statusCodes.PRECONDITION_FAILED = 412)] = "Precondition Failed";
+statusMessages[(statusCodes.REQUEST_TOO_LONG = 413)] =
+  "Request Entity Too Large";
+statusMessages[(statusCodes.REQUEST_URI_TOO_LONG = 414)] =
+  "Request-URI Too Long";
+statusMessages[(statusCodes.UNSUPPORTED_MEDIA_TYPE = 415)] =
+  "Unsupported Media Type";
+statusMessages[(statusCodes.REQUESTED_RANGE_NOT_SATISFIABLE = 416)] =
   "Requested Range Not Satisfiable";
-statusCodes[(exports.EXPECTATION_FAILED = 417)] = "Expectation Failed";
-statusCodes[(exports.INSUFFICIENT_SPACE_ON_RESOURCE = 419)] =
+statusMessages[(statusCodes.EXPECTATION_FAILED = 417)] = "Expectation Failed";
+statusMessages[(statusCodes.INSUFFICIENT_SPACE_ON_RESOURCE = 419)] =
   "Insufficient Space on Resource";
-statusCodes[(exports.METHOD_FAILURE = 420)] = "Method Failure";
-statusCodes[(exports.UNPROCESSABLE_ENTITY = 422)] = "Unprocessable Entity";
-statusCodes[(exports.LOCKED = 423)] = "Locked";
-statusCodes[(exports.FAILED_DEPENDENCY = 424)] = "Failed Dependency";
-statusCodes[(exports.PRECONDITION_REQUIRED = 428)] = "Precondition Required";
-statusCodes[(exports.TOO_MANY_REQUESTS = 429)] = "Too Many Requests";
-statusCodes[(exports.REQUEST_HEADER_FIELDS_TOO_LARGE = 431)] =
+statusMessages[(statusCodes.METHOD_FAILURE = 420)] = "Method Failure";
+statusMessages[(statusCodes.UNPROCESSABLE_ENTITY = 422)] =
+  "Unprocessable Entity";
+statusMessages[(statusCodes.LOCKED = 423)] = "Locked";
+statusMessages[(statusCodes.FAILED_DEPENDENCY = 424)] = "Failed Dependency";
+statusMessages[(statusCodes.PRECONDITION_REQUIRED = 428)] =
+  "Precondition Required";
+statusMessages[(statusCodes.TOO_MANY_REQUESTS = 429)] = "Too Many Requests";
+statusMessages[(statusCodes.REQUEST_HEADER_FIELDS_TOO_LARGE = 431)] =
   "Request Header Fields Too Large";
 
 // Server Error 5xx (The server failed to fulfill an apparently valid request)
-statusCodes[(exports.INTERNAL_SERVER_ERROR = 500)] = "Server Error";
-statusCodes[(exports.NOT_IMPLEMENTED = 501)] = "Not Implemented";
-statusCodes[(exports.BAD_GATEWAY = 502)] = "Bad Gateway";
-statusCodes[(exports.SERVICE_UNAVAILABLE = 503)] = "Service Unavailable";
-statusCodes[(exports.GATEWAY_TIMEOUT = 504)] = "Gateway Timeout";
-statusCodes[(exports.HTTP_VERSION_NOT_SUPPORTED = 505)] =
+statusMessages[(statusCodes.INTERNAL_SERVER_ERROR = 500)] = "Server Error";
+statusMessages[(statusCodes.NOT_IMPLEMENTED = 501)] = "Not Implemented";
+statusMessages[(statusCodes.BAD_GATEWAY = 502)] = "Bad Gateway";
+statusMessages[(statusCodes.SERVICE_UNAVAILABLE = 503)] = "Service Unavailable";
+statusMessages[(statusCodes.GATEWAY_TIMEOUT = 504)] = "Gateway Timeout";
+statusMessages[(statusCodes.HTTP_VERSION_NOT_SUPPORTED = 505)] =
   "HTTP Version Not Supported";
-statusCodes[(exports.INSUFFICIENT_STORAGE = 507)] = "Insufficient Storage";
-statusCodes[(exports.NETWORK_AUTHENTICATION_REQUIRED = 511)] =
+statusMessages[(statusCodes.INSUFFICIENT_STORAGE = 507)] =
+  "Insufficient Storage";
+statusMessages[(statusCodes.NETWORK_AUTHENTICATION_REQUIRED = 511)] =
   "Network Authentication Required";
 
-exports.getStatusText = (statusCode) => {
-  if (statusCodes.hasOwnProperty(statusCode)) {
-    return statusCodes[statusCode];
+const getStatusText = (statusCode) => {
+  if (statusMessages.hasOwnProperty(statusCode)) {
+    return statusMessages[statusCode];
   } else {
     throw new Error("Status code does not exist: " + statusCode);
   }
+};
+
+module.exports = {
+  statusCodes,
+  getStatusText,
 };

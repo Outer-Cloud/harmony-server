@@ -1,17 +1,26 @@
-const httpStatus = require("../utils/httpStatus");
-const errors = require("../utils/error/errors");
-
 module.exports = [
+  "bcrypt",
   "accountRepository",
   "profileRepository",
   "relationshipsRepository",
   "groupsRepository",
+  "httpStatus",
+  "errors",
+  "utils",
   (
+    bcrypt,
     accountRepository,
     profileRepository,
     relationshipsRepository,
-    groupsRepository
+    groupsRepository,
+    httpStatus,
+    errors,
+    utils
   ) => {
+    const codes = httpStatus.statusCodes;
+    const errorCodes = errors.errorCodes;
+    const { isValid, invalid, isValidPassword, generateToken } = utils;
+
     const getTokenQuery = (id, token) => {
       return {
         _id: id,
@@ -26,16 +35,34 @@ module.exports = [
     return {
       create: async (req, res, next) => {
         try {
-          const newAccount = await accountRepository.create({
+          if (!req.body.password || !isValidPassword(req.body.password)) {
+            const error = new Error(errorCodes.INVALID_PASSWORD);
+            error.name = errorCodes.INVALID_PASSWORD;
+            throw error;
+          }
+
+          if (
+            !isValid(req.body, accountRepository.getSchema(), invalid.account)
+          ) {
+            const error = new Error(errorCodes.INVALID_OBJECT);
+            error.name = errorCodes.INVALID_OBJECT;
+            throw error;
+          }
+          req.body.password = await bcrypt.hash(req.body.password, 8);
+          const newId = await accountRepository.create({
             newAccount: {
               ...req.body,
             },
           });
-          await relationshipsRepository.create(newAccount._id);
-          await groupsRepository.create(newAccount._id);
-          const token = await accountRepository.generateAuthToken(newAccount);
 
-          res.status(httpStatus.CREATED).json({
+          await relationshipsRepository.create(newId);
+          await groupsRepository.create(newId);
+
+          const token = await generateToken(newId);
+
+          await accountRepository.insertToken(newId, token);
+
+          res.status(codes.CREATED).json({
             token,
           });
         } catch (error) {
@@ -45,6 +72,24 @@ module.exports = [
 
       update: async (req, res, next) => {
         try {
+          if (
+            !isValid(req.body, accountRepository.getSchema(), invalid.account)
+          ) {
+            const error = new Error(errorCodes.INVALID_UPDATES);
+            error.name = errorCodes.INVALID_UPDATES;
+            throw error;
+          }
+
+          if (req.body.password) {
+            if (!isValidPassword(req.body.password)) {
+              const error = new Error(errorCodes.INVALID_PASSWORD);
+              error.name = errorCodes.INVALID_PASSWORD;
+              throw error;
+            }
+
+            req.body.password = await bcrypt.hash(req.body.password, 8);
+          }
+
           await accountRepository.update({
             updates: req.body,
             query: { _id: req.auth.id },
@@ -74,22 +119,27 @@ module.exports = [
           const { email, password } = req.body;
 
           if (!email) {
-            const error = new Error(errors.MISSING_EMAIL);
-            error.name = errors.MISSING_EMAIL;
+            const error = new Error(errorCodes.MISSING_EMAIL);
+            error.name = errorCodes.MISSING_EMAIL;
             throw error;
           }
 
           if (!password) {
-            const error = new Error(errors.MISSING_PASSWORD);
-            error.name = errors.MISSING_PASSWORD;
+            const error = new Error(errorCodes.MISSING_PASSWORD);
+            error.name = errorCodes.MISSING_PASSWORD;
             throw error;
           }
 
-          const account = await accountRepository.findByCredentials(
-            email,
-            password
-          );
-          const token = await accountRepository.generateAuthToken(account);
+          const account = await accountRepository.findByEmail(email);
+
+          if (!account || !(await bcrypt.compare(password, account.password))) {
+            const error = new Error(errorCodes.LOGIN_FAILED);
+            error.name = errorCodes.LOGIN_FAILED;
+            throw error;
+          }
+
+          const token = await generateToken(account._id.toString());
+          await accountRepository.insertToken(account._id, token);
 
           res.json({
             token,

@@ -1,14 +1,24 @@
-const errors = require("../utils/error/errors");
 module.exports = [
   "msgRepository",
-  (msgRepository) => {
+  "utils",
+  "errors",
+  (msgRepository, utils, errors) => {
+    const errorCodes = errors.errorCodes;
+    const { isValid, invalid } = utils;
+
     return {
       newMessage: async (req, res, next) => {
         try {
           if (req.body.text === "") {
-            const err = new Error(errors.MESSAGE_NO_TEXT);
-            err.name = errors.MESSAGE_NO_TEXT;
+            const err = new Error(errorCodes.MESSAGE_NO_TEXT);
+            err.name = errorCodes.MESSAGE_NO_TEXT;
             throw err;
+          }
+
+          if (!isValid(req.body, msgRepository.getSchema(), invalid.base)) {
+            const error = new Error(errorCodes.INVALID_OBJECT);
+            error.name = errorCodes.INVALID_OBJECT;
+            throw error;
           }
 
           const time = new Date(req.body.time);
@@ -63,14 +73,13 @@ module.exports = [
 
           const message = await msgRepository.get(opt);
           if (!message) {
-            const err = new Error(errors.MESSAGE_NOT_EXIST);
-            err.name = errors.MESSAGE_NOT_EXIST;
+            const err = new Error(errorCodes.MESSAGE_NOT_EXIST);
+            err.name = errorCodes.MESSAGE_NOT_EXIST;
             throw err;
           }
 
           res.json(message);
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },
@@ -95,20 +104,20 @@ module.exports = [
           });
 
           if (!message) {
-            const err = new Error(errors.MESSAGE_NOT_EXIST);
-            err.name = errors.MESSAGE_NOT_EXIST;
+            const err = new Error(errorCodes.MESSAGE_NOT_EXIST);
+            err.name = errorCodes.MESSAGE_NOT_EXIST;
             throw err;
           }
 
           if (!(message.author == req.auth.id)) {
-            const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
-            err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
+            const err = new Error(errorCodes.MESSAGE_AUTHOR_ID_MISMATCH);
+            err.name = errorCodes.MESSAGE_AUTHOR_ID_MISMATCH;
             throw err;
           }
 
           if (req.body.text === "") {
-            const err = new Error(errors.MESSAGE_NO_TEXT);
-            err.name = errors.MESSAGE_NO_TEXT;
+            const err = new Error(errorCodes.MESSAGE_NO_TEXT);
+            err.name = errorCodes.MESSAGE_NO_TEXT;
             throw err;
           }
 
@@ -132,14 +141,14 @@ module.exports = [
           const message = await msgRepository.get(opt);
 
           if (!message) {
-            const err = new Error(errors.MESSAGE_NOT_EXIST);
-            err.name = errors.MESSAGE_NOT_EXIST;
+            const err = new Error(errorCodes.MESSAGE_NOT_EXIST);
+            err.name = errorCodes.MESSAGE_NOT_EXIST;
             throw err;
           }
 
           if (!(message.author == req.auth.id)) {
-            const err = new Error(errors.MESSAGE_AUTHOR_ID_MISMATCH);
-            err.name = errors.MESSAGE_AUTHOR_ID_MISMATCH;
+            const err = new Error(errorCodes.MESSAGE_AUTHOR_ID_MISMATCH);
+            err.name = errorCodes.MESSAGE_AUTHOR_ID_MISMATCH;
             throw err;
           }
 

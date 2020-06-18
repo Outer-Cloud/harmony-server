@@ -1,13 +1,24 @@
-const errors = require("../utils/error/errors");
-const constants = require("../utils/values").constants;
-const httpStatus = require("../utils/httpStatus");
-
 module.exports = [
   "profileRepository",
-  (profileRepository) => {
+  "errors",
+  "values",
+  "httpStatus",
+  "utils",
+  (profileRepository, errors, values, httpStatus, utils) => {
+    const codes = httpStatus.statusCodes;
+    const constants = values.constants;
+    const errorCodes = errors.errorCodes;
+    const { isValid, invalid } = utils;
+
     return {
       create: async (req, res, next) => {
         try {
+          if (!isValid(req.body, profileRepository.getSchema(), invalid.profile)) {
+            const error = new Error(errorCodes.INVALID_UPDATES);
+            error.name = errorCodes.INVALID_UPDATES;
+            throw error;
+          }
+
           const newProfile = await profileRepository.create({
             profile: {
               ...req.body,
@@ -17,7 +28,7 @@ module.exports = [
             },
           });
 
-          res.status(httpStatus.CREATED).json(newProfile);
+          res.status(codes.CREATED).json(newProfile);
         } catch (error) {
           next(error);
         }
@@ -55,6 +66,12 @@ module.exports = [
 
       update: async (req, res, next) => {
         try {
+          if (!isValid(req.body, profileRepository.getSchema(), invalid.profile)) {
+            const error = new Error(errorCodes.INVALID_UPDATES);
+            error.name = errorCodes.INVALID_UPDATES;
+            throw error;
+          }
+
           const query = {
             account: req.auth.id,
           };
