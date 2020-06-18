@@ -36,7 +36,7 @@ module.exports = [
       getRoom: async (req, res, next) => {
         try {
           const query = {
-            room: req.body.ID,
+            room: req.params.room,
           };
 
           const opt = {
@@ -54,7 +54,7 @@ module.exports = [
       getMessage: async (req, res, next) => {
         try {
           const query = {
-            _id: req.body.ID,
+            _id: req.params.id,
           };
 
           const opt = {
@@ -70,7 +70,6 @@ module.exports = [
 
           res.json(message);
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },
@@ -78,7 +77,7 @@ module.exports = [
       editMessage: async (req, res, next) => {
         try {
           const query = {
-            _id: req.body.ID,
+            _id: req.params.id,
           };
 
           const update = {
@@ -122,7 +121,7 @@ module.exports = [
       deleteMessage: async (req, res, next) => {
         try {
           const query = {
-            _id: req.body.ID,
+            _id: req.params.id,
           };
 
           const opt = {
