@@ -224,7 +224,6 @@ describe("message tests", () => {
           expect(ret.update.text).toEqual(body.text);
         },
       };
-
       await controller.editMessage(req, res, next);
       expect(next).toBeCalledTimes(0);
     });
