@@ -1,16 +1,6 @@
 const mongoose = require("mongoose");
 
 const relationshipsSchema = new mongoose.Schema({
-  servers: {
-    type: [
-      {
-        type: mongoose.Schema.ObjectId,
-        required: true,
-        ref: "Server",
-      },
-    ],
-    validate: (v) => v !== null && v.length < 100,
-  },
   directMessages: [
     {
       type: mongoose.Schema.ObjectId,

@@ -1,10 +1,11 @@
-
-const { OUTBOUND_REQUEST } = require("../utils/values").constants;
-const errors = require("../utils/error/errors");
-
 module.exports = [
   "relationshipsModel",
-  (relationshipsModel) => {
+  "values",
+  "errors",
+  (relationshipsModel, values, errors) => {
+    const { OUTBOUND_REQUEST } = values.constants;
+    const errorCodes = errors.errorCodes;
+
     const get = async (opts) => {
       const relationships = await relationshipsModel
         .findOne(opts.query)
@@ -28,8 +29,8 @@ module.exports = [
       );
 
       if (toRemoveIndex === -1) {
-        const error = new Error(errors.USER_DOES_NOT_EXIST);
-        error.name = errors.USER_DOES_NOT_EXIST;
+        const error = new Error(errorCodes.USER_DOES_NOT_EXIST);
+        error.name = errorCodes.USER_DOES_NOT_EXIST;
         throw error;
       }
 
