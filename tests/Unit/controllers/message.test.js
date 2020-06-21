@@ -224,6 +224,7 @@ describe("message tests", () => {
           expect(ret.update.text).toEqual(body.text);
         },
       };
+      const next = jest.fn(() => {});
       await controller.editMessage(req, res, next);
       expect(next).toBeCalledTimes(0);
     });
