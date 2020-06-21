@@ -1,5 +1,4 @@
-# harmony-server
-
+```
 Routes:/api
 	Auth /auth
 		Post: /login
@@ -66,8 +65,9 @@ Account /account
 			Messages message/
 				Get /        //get message with channel id
 Messages /message
-  Post /           // write a message			
-      Actions /:id
-        Get /     //retrieve message with id
-        Put /     //update message with id
-        Delete /   //delete message with id	
+Post /           // write a message			
+		Actions /:id
+Get /     //retrieve message with id
+Put /     //update message with id
+Delete /   //delete message with id	
+```
