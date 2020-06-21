@@ -6,6 +6,7 @@ module.exports = [
   (accountController, auth) => {
     const router = new express.Router();
 
+    router.get("/", auth, accountController.get);
     router.post("/", accountController.create);
     router.put("/", auth, accountController.update);
     router.delete("/", auth, accountController.delete);
