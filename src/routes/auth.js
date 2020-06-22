@@ -7,8 +7,7 @@ module.exports = [
     const router = new express.Router();
 
     router.post("/login", accountController.login);
-    router.delete("/logout", auth, accountController.logout);
-    router.delete("/logoutAll", auth, accountController.logoutAll);
+    router.delete("/logout/:token?", auth, accountController.logout);
 
     return router;
   },

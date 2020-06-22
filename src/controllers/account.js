@@ -21,13 +21,6 @@ module.exports = [
     const errorCodes = errors.errorCodes;
     const { isValid, invalid, isValidPassword, generateToken } = utils;
 
-    const getTokenQuery = (id, token) => {
-      return {
-        _id: id,
-        "tokens.token": token,
-      };
-    };
-
     const tokenFilter = {
       tokens: 1,
     };
@@ -177,24 +170,7 @@ module.exports = [
 
       logout: async (req, res, next) => {
         try {
-          const query = getTokenQuery(req.auth.id, req.auth.token);
-
-          await accountRepository.deleteTokens({ query, filter: tokenFilter });
-          res.send();
-        } catch (error) {
-          next(error);
-        }
-      },
-
-      logoutAll: async (req, res, next) => {
-        try {
-          const query = getTokenQuery(req.auth.id, req.auth.token);
-
-          await accountRepository.deleteTokens({
-            query,
-            filter: tokenFilter,
-            removeAll: true,
-          });
+          await accountRepository.deleteTokens(req.auth.id, req.params.token);
           res.send();
         } catch (error) {
           next(error);
@@ -203,7 +179,10 @@ module.exports = [
 
       checkToken: async (id, token) => {
         const opts = {
-          query: getTokenQuery(id, token),
+          query: {
+            _id: id,
+            "tokens.token": token,
+          },
           lean: true,
         };
 
