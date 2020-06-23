@@ -48,6 +48,18 @@ module.exports = [
         },
       },
 
+      server: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Server",
+        required: () => {
+          return (
+            this.type === channelTypes.SERVER_TEXT ||
+            this.type === channelTypes.SERVER_NEWS ||
+            this.type === channelTypes.SERVER_VOICE
+          );
+        },
+      },
+
       icon: {},
     });
     return connection.model("Channel", channelSchema);

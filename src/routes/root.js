@@ -6,12 +6,14 @@ module.exports = [
   "accountRoute",
   "authRoute",
   "relationshipsRoute",
+  "channelRoute",
   (
     profileRoute,
     messageRoute,
     accountRoute,
     authRoute,
-    relationshipsRoute
+    relationshipsRoute,
+    channelRoute
   ) => {
     const router = new express.Router();
 
@@ -20,6 +22,7 @@ module.exports = [
     router.use("/auth", authRoute);
     router.use("/relationships", relationshipsRoute);
     router.use("/message", messageRoute);
+    router.use("/channel", channelRoute);
 
     return router;
   },

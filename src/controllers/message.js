@@ -46,14 +46,14 @@ module.exports = [
       getRoom: async (req, res, next) => {
         try {
           const query = {
-            room: req.params.room,
+            channel: req.params.room,
           };
 
           const opt = {
             query,
           };
 
-          const message = await msgRepository.getMessageForRoom(opt);
+          const message = await msgRepository.getMessageForChannel(opt);
 
           res.json(message);
         } catch (error) {

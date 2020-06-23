@@ -24,6 +24,7 @@ container.register("values", require("./utils/values"));
 //utils
 container.factory("utils", require("./utils/utils"));
 container.factory("errors", require("./utils/error/errors"));
+container.factory("channelTypes", require("./utils/channeltypes"))
 container.factory("repoError", require("./utils/error/repoError"));
 container.factory("errorHandler", require("./utils/error/handler"));
 
@@ -39,6 +40,7 @@ container.factory("relationshipsModel", require("./models/relationships"));
 container.factory("groupsModel", require("./models/groups"));
 container.factory("accountModel", require("./models/account"));
 container.factory("msgModel", require("./models/message"));
+container.factory("channelModel", require("./models/channel"));
 
 //repositories
 container.factory("profileRepository", require("./repositories/profile"));
@@ -66,6 +68,7 @@ container.factory("accountRoute", require("./routes/account"));
 container.factory("relationshipsRoute", require("./routes/relationships"));
 container.factory("authRoute", require("./routes/auth"));
 container.factory("messageRoute", require("./routes/message"));
+container.factory("channelRoute", require("./routes/channel"));
 
 const routes = container.get("routes");
 

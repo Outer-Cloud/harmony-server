@@ -66,6 +66,13 @@ module.exports = [
       message: "Error: Attempt to change/delete message you did not write",
     };
 
+    errorInfo[
+      (errorCodes.CHANNEL_NOT_EXIST = "ChannelIDNotExistError")
+    ] = {
+      status: codes.NOT_FOUND,
+      message: "Error: channel with corresponding ID does not exist",
+    };
+
     return {
       errorCodes,
       getErrorInfo: (error) => {
