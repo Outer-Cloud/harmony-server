@@ -9,9 +9,8 @@ module.exports = [
     router.post("/", auth,  msgController.newMessage);
     router.get("/:id", auth, msgController.getMessage);
     router.delete("/:id", auth, msgController.deleteMessage);
-    router.patch("/:id", auth, msgController.editMessage);
-    router.get("/getRoom/:room", auth, msgController.getRoom);
-
+    router.put("/:id", auth, msgController.editMessage);
+    
     return router;
   },
 ];
