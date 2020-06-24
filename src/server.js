@@ -51,6 +51,7 @@ container.factory(
 container.factory("groupsRepository", require("./repositories/groups"));
 container.factory("accountRepository", require("./repositories/account"));
 container.factory("msgRepository", require("./repositories/message"));
+container.factory("channelRepository", require("./repositories/channel"))
 
 //controllers
 container.factory("profileController", require("./controllers/profile"));
@@ -60,6 +61,7 @@ container.factory(
   require("./controllers/relationships")
 );
 container.factory("msgController", require("./controllers/message"));
+container.factory("channelController", require("./controllers/channel"))
 
 //routes
 container.factory("routes", require("./routes/root"));
