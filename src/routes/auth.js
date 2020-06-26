@@ -1,14 +1,13 @@
 const express = require("express");
 
 module.exports = [
-  "accountController",
+  "authController",
   "auth",
-  (accountController, auth) => {
+  (authtController, auth) => {
     const router = new express.Router();
 
-    router.post("/login", accountController.login);
-    router.delete("/logout", auth, accountController.logout);
-    router.delete("/logoutAll", auth, accountController.logoutAll);
+    router.post("/login", authtController.login);
+    router.delete("/logout/:token?", auth, authtController.logout);
 
     return router;
   },

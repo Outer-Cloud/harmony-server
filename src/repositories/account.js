@@ -45,16 +45,20 @@ module.exports = [
       return account;
     };
 
-    const deleteTokens = async (opts) => {
-      const { query, filter, removeAll } = opts;
-      const account = await get({ query, filter });
+    const deleteTokens = async (id, token) => {
+      const account = await get({
+        query: {
+          _id: id,
+        },
+        filter: {
+          token: 1,
+        },
+      });
 
-      if (removeAll) {
+      if (!token) {
         account.tokens = [];
       } else {
-        account.tokens = account.tokens.filter(
-          (token) => token.token !== query["tokens.token"]
-        );
+        account.tokens = account.tokens.filter((t) => t.token !== token);
       }
 
       account.save();
