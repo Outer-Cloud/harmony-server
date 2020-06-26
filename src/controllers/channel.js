@@ -57,13 +57,13 @@ module.exports = [
             _id: req.params.id,
           };
 
-          const update = {
-            update: req.body,
+          const updates = {
+            update:req.body,
           };
 
           const opt = {
             query,
-            update,
+            updates,
           };
 
           const channel = await channelRepository.get({ query });
@@ -75,7 +75,7 @@ module.exports = [
 
           const ret = await channelRepository.update(opt);
 
-          res.json(channel);
+          res.json(ret);
         } catch (error) {
           next(error);
         }
@@ -88,6 +88,13 @@ module.exports = [
           const opt = {
             query,
           };
+
+          const channel = await channelRepository.get({ query });
+          if (!channel) {
+            const err = new Error(errorCodes.CHANNEL_NOT_EXIST);
+            err.name = errorCodes.CHANNEL_NOT_EXIST;
+            throw err;
+          }
 
           messages = msgRepository.getMessageForChannel(opt);
 
