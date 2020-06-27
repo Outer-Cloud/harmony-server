@@ -21,6 +21,7 @@ module.exports = [
 
           const projection = {
             _id: 0,
+            id: 0,
           };
 
           const opts = {
@@ -32,11 +33,9 @@ module.exports = [
           };
 
           const result = await profileRepository.get(opts);
-          delete result.id;
 
           res.json(result || {});
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },
