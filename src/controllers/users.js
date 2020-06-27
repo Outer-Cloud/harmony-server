@@ -41,6 +41,14 @@ module.exports = [
 
           const account = await accountRepository.get(accountOpts);
 
+          
+
+          if (!account) {
+            const error = new Error(errorCodes.USER_DOES_NOT_EXIST);
+            error.name = errorCodes.USER_DOES_NOT_EXIST;
+            throw error;
+          }
+
           const profileQuery = {
             account: req.params.id,
           };
@@ -58,7 +66,7 @@ module.exports = [
             lean: true,
           };
 
-          const profile = await profileRepository.get(profiletOpts);
+          const profile = (await profileRepository.get(profiletOpts)) || {};
 
           const id = account._id;
 
@@ -70,9 +78,10 @@ module.exports = [
             profile,
           };
 
+          console.log(returnVal)
+
           res.json(returnVal || {});
         } catch (error) {
-          console.log(error);
           next(error);
         }
       },

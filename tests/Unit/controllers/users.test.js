@@ -134,9 +134,15 @@ describe("Users controller tests", () => {
       },
     };
 
-    const res = {
+    let res = {
       json: jest.fn(),
     };
+
+    beforeEach(() => {
+      res = {
+        json: jest.fn(),
+      };
+    });
 
     test("Should return user account", async () => {
       await controller.get(req, res, next);
@@ -149,39 +155,28 @@ describe("Users controller tests", () => {
         profile: expectedProfile,
       });
     });
+
+    test("Should throw user not found error when user does not exist", async () => {
+      const expectedError = new Error(errorCodes.USER_DOES_NOT_EXIST);
+      expectedError.name = errorCodes.USER_DOES_NOT_EXIST;
+
+      accountRepository.get = jest.fn();
+
+      await controller.get(req, res, next);
+
+      expect(accountRepository.get).toBeCalledWith(expectedAccountOpts);
+      expect(res.json).toHaveBeenCalledTimes(0);
+      expect(next).toBeCalledWith(expectedError);
+    });
+
     test("Should handle errors", async () => {
       accountRepository.get = jest.fn(() => {
         throw unknownError;
       });
 
-      const expectedQuery = {
-        _id: expectedAccountId,
-      };
-
-      const expectedPojection = {
-        tokens: 0,
-        password: 0,
-      };
-
-      const expectedOpts = {
-        query: expectedQuery,
-        projection: expectedPojection,
-        lean: true,
-      };
-
-      const req = {
-        params: {
-          id: expectedAccountId,
-        },
-      };
-
-      const res = {
-        json: jest.fn(),
-      };
-
       await controller.get(req, res, next);
 
-      expect(accountRepository.get).toBeCalledWith(expectedOpts);
+      expect(accountRepository.get).toBeCalledWith(expectedAccountOpts);
       expect(res.json).toHaveBeenCalledTimes(0);
       expect(next).toBeCalledWith(unknownError);
     });
