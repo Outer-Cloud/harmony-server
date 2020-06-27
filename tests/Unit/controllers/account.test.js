@@ -8,7 +8,6 @@ const httpStatus = require("../../../src/utils/httpStatus");
 const errors = getErrorsController(httpStatus);
 
 const errorCodes = errors.errorCodes;
-const statusCodes = httpStatus.statusCodes;
 
 const email = "test@test.com";
 const password = "password";
@@ -18,14 +17,16 @@ const expectedEncryptedPassword = "encrypted password";
 const expectedSchema = {
   field1: "some value",
 };
+const expectedAccount = {
+  userName,
+  email,
+};
+
 const expectedToken = "adfa8324adradf";
 const expectedAccountId = "asd2123";
 
-const newAccount = {
-  userName,
-  email,
-  password,
-};
+const unknownError = new Error(errorCodes.UNKNOWN);
+unknownError.name = errorCodes.UNKNOWN;
 
 describe("Account Controller tests", () => {
   let bcrypt = {};
@@ -49,6 +50,16 @@ describe("Account Controller tests", () => {
 
     bcrypt.hash = jest.fn(() => expectedEncryptedPassword);
 
+    accountRepository.get = jest.fn((opts) => {
+      if (opts.projection.password === 0) {
+        return expectedAccount;
+      }
+
+      return {
+        ...expectedAccount,
+        password,
+      };
+    });
     accountRepository.getSchema = jest.fn(() => {
       return expectedSchema;
     });
@@ -77,8 +88,74 @@ describe("Account Controller tests", () => {
   });
 
   describe("Get account", () => {
-    
-  })
+    test("Should return user account", async () => {
+      const expectedQuery = {
+        _id: expectedAccountId,
+      };
+
+      const expectedPojection = {
+        tokens: 0,
+        password: 0,
+      };
+
+      const expectedOpts = {
+        query: expectedQuery,
+        projection: expectedPojection,
+        lean: true,
+      };
+
+      const req = {
+        auth: {
+          id: expectedAccountId,
+        },
+      };
+
+      const res = {
+        json: jest.fn(),
+      };
+
+      await controller.get(req, res, next);
+
+      expect(accountRepository.get).toBeCalledWith(expectedOpts);
+      expect(res.json).toBeCalledWith(expectedAccount);
+    });
+    test("Should handle errors", async () => {
+      accountRepository.get = jest.fn((opts) => {
+        throw unknownError;
+      });
+
+      const expectedQuery = {
+        _id: expectedAccountId,
+      };
+
+      const expectedPojection = {
+        tokens: 0,
+        password: 0,
+      };
+
+      const expectedOpts = {
+        query: expectedQuery,
+        projection: expectedPojection,
+        lean: true,
+      };
+
+      const req = {
+        auth: {
+          id: expectedAccountId,
+        },
+      };
+
+      const res = {
+        json: jest.fn(),
+      };
+
+      await controller.get(req, res, next);
+
+      expect(accountRepository.get).toBeCalledWith(expectedOpts);
+      expect(res.json).toHaveBeenCalledTimes(0);
+      expect(next).toBeCalledWith(unknownError);
+    });
+  });
 
   describe("Update account", () => {
     const expectedUpdates = {
@@ -101,13 +178,6 @@ describe("Account Controller tests", () => {
       const res = {
         send: jest.fn(),
       };
-
-      accountRepository.get = jest.fn(() => {
-        return {
-          ...expectedUpdates,
-          password,
-        };
-      });
 
       bcrypt.compare = jest.fn(() => true);
       _.isEqual = jest.fn(() => false);
@@ -132,7 +202,7 @@ describe("Account Controller tests", () => {
         expectedSchema,
         utils.invalid.account
       );
-      expect(_.isEqual).toBeCalledWith(expectedUpdates, expectedUpdates);
+      expect(_.isEqual).toBeCalledWith(expectedUpdates, expectedAccount);
       expect(_.isEmpty).toBeCalledWith(expectedUpdates);
       expect(bcrypt.compare).toBeCalledWith(password, password);
       expect(accountRepository.update).toBeCalledWith({
@@ -154,13 +224,6 @@ describe("Account Controller tests", () => {
       const res = {
         send: jest.fn(),
       };
-
-      accountRepository.get = jest.fn(() => {
-        return {
-          ...expectedUpdates,
-          password,
-        };
-      });
 
       utils.isValidPassword = jest.fn(() => true);
       utils.isValid = jest.fn(() => true);
@@ -189,7 +252,7 @@ describe("Account Controller tests", () => {
         expectedSchema,
         utils.invalid.account
       );
-      expect(_.isEqual).toBeCalledWith({}, expectedUpdates);
+      expect(_.isEqual).toBeCalledWith({}, expectedAccount);
       expect(_.isEmpty).toBeCalledWith({});
       expect(bcrypt.compare).toBeCalledWith(password, password);
       expect(bcrypt.hash).toBeCalledWith(password, 8);
@@ -204,13 +267,6 @@ describe("Account Controller tests", () => {
     });
 
     test("Should return 200 and perform no additional action if there are no changes and password is not changed", async () => {
-      accountRepository.get = jest.fn(() => {
-        return {
-          ...expectedUpdates,
-          password,
-        };
-      });
-
       accountRepository.update = jest.fn();
 
       const req = {
@@ -249,13 +305,6 @@ describe("Account Controller tests", () => {
 
     test("Should use user id from jwt", async () => {
       const expectedId = "Should be called with this";
-
-      accountRepository.get = jest.fn(() => {
-        return {
-          ...expectedUpdates,
-          password,
-        };
-      });
 
       const req = {
         body: { ...expectedUpdates, password },
@@ -297,13 +346,6 @@ describe("Account Controller tests", () => {
     test("Should throw password mismatch error when update contains changes and password does not match", async () => {
       const expectedError = new Error(errorCodes.PASSWORD_MISMATCH);
       expectedError.name = errorCodes.PASSWORD_MISMATCH;
-
-      accountRepository.get = jest.fn(() => {
-        return {
-          ...expectedUpdates,
-          password,
-        };
-      });
 
       accountRepository.update = jest.fn();
 
@@ -367,23 +409,11 @@ describe("Account Controller tests", () => {
       await controller.update(req, res, next);
 
       expect(next).toBeCalledWith(expectedError);
-      expect(utils.isValid).toBeCalledWith(
-        req.body,
-        expectedSchema,
-        utils.invalid.account
-      );
     });
 
     test("Should throw invalid update error when update contains invalid password and handle it", async () => {
       const expectedError = new Error(errorCodes.INVALID_PASSWORD);
       expectedError.name = errorCodes.INVALID_PASSWORD;
-
-      accountRepository.get = jest.fn(() => {
-        return {
-          ...expectedUpdates,
-          password,
-        };
-      });
 
       accountRepository.update = jest.fn();
 
@@ -423,18 +453,8 @@ describe("Account Controller tests", () => {
     });
 
     test("Should handle errors", async () => {
-      const expectedError = new Error(errorCodes.UNKNOWN);
-      expectedError.name = errorCodes.UNKNOWN;
-
       accountRepository.update = jest.fn((opts) => {
-        throw expectedError;
-      });
-
-      accountRepository.get = jest.fn(() => {
-        return {
-          ...expectedUpdates,
-          password,
-        };
+        throw unknownError;
       });
 
       const req = { body: { ...expectedUpdates, password }, auth: {} };
@@ -462,12 +482,7 @@ describe("Account Controller tests", () => {
 
       await controller.update(req, res, next);
 
-      expect(next).toBeCalledWith(expectedError);
-      expect(utils.isValid).toBeCalledWith(
-        expectedUpdates,
-        expectedSchema,
-        utils.invalid.account
-      );
+      expect(next).toBeCalledWith(unknownError);
     });
   });
 
@@ -525,11 +540,8 @@ describe("Account Controller tests", () => {
       });
     });
     test("Should handle errors", async () => {
-      const expectedError = new Error(errorCodes.UNKNOWN);
-      expectedError.name = errorCodes.UNKNOWN;
-
       accountRepository.delete = jest.fn((opts) => {
-        throw expectedError;
+        throw unknownError;
       });
 
       const req = { body: {}, auth: {} };
@@ -538,7 +550,7 @@ describe("Account Controller tests", () => {
 
       await controller.delete(req, res, next);
 
-      expect(next).toBeCalledWith(expectedError);
+      expect(next).toBeCalledWith(unknownError);
     });
   });
 });

@@ -35,7 +35,6 @@ module.exports = [
           const projection = {
             tokens: 0,
             password: 0,
-            __v: 0,
           };
 
           const opts = {
