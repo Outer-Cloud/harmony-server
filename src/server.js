@@ -53,6 +53,7 @@ container.factory("msgRepository", require("./repositories/message"));
 //controllers
 container.factory("profileController", require("./controllers/profile"));
 container.factory("accountController", require("./controllers/account"));
+container.factory("authController", require("./controllers/auth"));
 container.factory(
   "relationshipsController",
   require("./controllers/relationships")
