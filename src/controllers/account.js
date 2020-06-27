@@ -1,4 +1,7 @@
+const { update } = require("lodash");
+
 module.exports = [
+  "_",
   "bcrypt",
   "accountRepository",
   "profileRepository",
@@ -8,6 +11,7 @@ module.exports = [
   "errors",
   "utils",
   (
+    _,
     bcrypt,
     accountRepository,
     profileRepository,
@@ -31,7 +35,6 @@ module.exports = [
           const projection = {
             tokens: 0,
             password: 0,
-            _id: 0,
             __v: 0,
           };
 
@@ -48,65 +51,63 @@ module.exports = [
           next(error);
         }
       },
-      create: async (req, res, next) => {
-        try {
-          if (!req.body.password || !isValidPassword(req.body.password)) {
-            const error = new Error(errorCodes.INVALID_PASSWORD);
-            error.name = errorCodes.INVALID_PASSWORD;
-            throw error;
-          }
-
-          if (
-            !isValid(req.body, accountRepository.getSchema(), invalid.account)
-          ) {
-            const error = new Error(errorCodes.INVALID_OBJECT);
-            error.name = errorCodes.INVALID_OBJECT;
-            throw error;
-          }
-          req.body.password = await bcrypt.hash(req.body.password, 8);
-          const newId = await accountRepository.create({
-            newAccount: {
-              ...req.body,
-            },
-          });
-
-          await relationshipsRepository.create(newId);
-          await groupsRepository.create(newId);
-
-          const token = await generateToken(newId);
-
-          await accountRepository.insertToken(newId, token);
-
-          res.status(codes.CREATED).json({
-            token,
-          });
-        } catch (error) {
-          next(error);
-        }
-      },
 
       update: async (req, res, next) => {
         try {
+          const { newPassword = "", password = "", ...body } = req.body;
+
           if (
-            !isValid(req.body, accountRepository.getSchema(), invalid.account)
+            !isValid(body, accountRepository.getSchema(), invalid.account)
           ) {
             const error = new Error(errorCodes.INVALID_UPDATES);
             error.name = errorCodes.INVALID_UPDATES;
             throw error;
           }
 
-          if (req.body.password) {
-            if (!isValidPassword(req.body.password)) {
+          const curr = await accountRepository.get({
+            query: {
+              _id: req.auth.id,
+            },
+            projection: {
+              tokens: 0,
+              _id: 0,
+              discriminator: 0,
+            },
+            lean: true,
+          });
+
+          const currPassword = curr.password;
+          delete curr.password;
+
+          const unchanged = _.isEqual(body, curr);
+          const empty = _.isEmpty(body);
+
+          if ((unchanged || empty) && !newPassword) {
+            return res.send();
+          }
+
+          const match = await bcrypt.compare(password, currPassword);
+
+          const updates = { ...body };
+
+          if (!match) {
+            const error = new Error(errorCodes.PASSWORD_MISMATCH);
+            error.name = errorCodes.PASSWORD_MISMATCH;
+            throw error;
+          }
+
+          if (newPassword) {
+            if (!isValidPassword(newPassword)) {
               const error = new Error(errorCodes.INVALID_PASSWORD);
               error.name = errorCodes.INVALID_PASSWORD;
               throw error;
             }
 
-            req.body.password = await bcrypt.hash(req.body.password, 8);
+            updates.password = await bcrypt.hash(newPassword, 8);
           }
 
           await accountRepository.update({
-            updates: req.body,
+            updates,
             query: { _id: req.auth.id },
           });
           res.send();

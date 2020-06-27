@@ -17,7 +17,7 @@ module.exports = [
     const get = async (opts) => {
       const account = await accountModel
         .findOne(opts.query)
-        .select(opts.projection)
+        .select({ __v: 0, ...opts.projection })
         .lean(opts.lean);
       return account;
     };
@@ -30,10 +30,6 @@ module.exports = [
       updates.forEach((update) => {
         account[update] = opts.updates[update];
       });
-
-      if (account.isDirectModified("password")) {
-        account.password = await bcrypt.hash(account.password, 8);
-      }
 
       await account.save();
     };
