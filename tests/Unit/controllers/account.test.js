@@ -167,7 +167,7 @@ describe("Account Controller tests", () => {
       accountRepository.update = jest.fn();
     });
 
-    test("Should update successfully when the password matches and their is changes ", async () => {
+    test("Should update successfully when the password matches and there is changes ", async () => {
       const req = {
         body: {
           ...expectedUpdates,
