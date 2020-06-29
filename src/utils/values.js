@@ -7,5 +7,12 @@ module.exports = {
     EN: "EN",
     OUTBOUND_REQUEST: "OUTBOUND_REQUEST",
     INBOUND_REQUEST: "INBOUND_REQUEST",
+
+    //channel types
+    DM: 1,
+    GROUP_DM: 2,
+    SERVER_TEXT: 3,
+    SERVER_NEWS: 4,
+    SERVER_VOICE: 5,
   },
 };

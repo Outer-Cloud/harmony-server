@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 
 module.exports = [
   "connection",
-  "channelTypes",
-  (connection, channelTypes) => {
+  "values",
+  (connection, values) => {
+    const { DM, GROUP_DM, SERVER_TEXT, SERVER_NEWS, SERVER_VOICE } = values.constants
     const channelSchema = new mongoose.Schema({
       name: {
         type: String,
@@ -16,7 +17,7 @@ module.exports = [
         ref: "topic",
         required: () => {
           return (
-            this.type === channelTypes.GROUP_DM || this.type === channelTypes.DM
+            this.type === GROUP_DM || this.type === DM
           );
         },
       },
@@ -36,7 +37,7 @@ module.exports = [
           },
         ],
         required: () => {
-          return this.type === channelTypes.GROUP_DM;
+          return this.type === GROUP_DM;
         },
       },
 
@@ -44,7 +45,7 @@ module.exports = [
         type: mongoose.Schema.ObjectId,
         ref: "DMOwner",
         required: () => {
-          return this.type === channelTypes.GROUP_DM;
+          return this.type === GROUP_DM;
         },
       },
 
@@ -53,9 +54,9 @@ module.exports = [
         ref: "Server",
         required: () => {
           return (
-            this.type === channelTypes.SERVER_TEXT ||
-            this.type === channelTypes.SERVER_NEWS ||
-            this.type === channelTypes.SERVER_VOICE
+            this.type === SERVER_TEXT ||
+            this.type === SERVER_NEWS ||
+            this.type === SERVER_VOICE
           );
         },
       },
