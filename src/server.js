@@ -14,6 +14,7 @@ container.register("TOKEN_LIFE_TIME", +process.env.TOKEN_LIFE_TIME || 15000);
 container.register("MAX_ALLOWED", +process.env.MAX_ALLOWED || 10000);
 
 //packages
+container.register("_", require("lodash"));
 container.register("bcrypt", require("bcrypt"));
 container.register("jsonwebtoken", require("jsonwebtoken"));
 
@@ -52,6 +53,7 @@ container.factory("msgRepository", require("./repositories/message"));
 
 //controllers
 container.factory("profileController", require("./controllers/profile"));
+container.factory("usersController", require("./controllers/users"));
 container.factory("accountController", require("./controllers/account"));
 container.factory("authController", require("./controllers/auth"));
 container.factory(
@@ -61,9 +63,11 @@ container.factory(
 container.factory("msgController", require("./controllers/message"));
 
 //routes
-container.factory("routes", require("./routes/root"));
+container.factory("routes", require("./routes/"));
+container.factory("usersRoute", require("./routes/users"));
+container.factory("meRoute", require("./routes/users/me"));
 container.factory("profileRoute", require("./routes/profile"));
-container.factory("accountRoute", require("./routes/account"));
+container.factory("accountRoute", require("./routes/users/routes/account"));
 container.factory("relationshipsRoute", require("./routes/relationships"));
 container.factory("authRoute", require("./routes/auth"));
 container.factory("messageRoute", require("./routes/message"));
