@@ -5,7 +5,12 @@ module.exports = [
     (channelModel) => {
         //todo : finish this
         const get = async (opt) => {
-            const channel = channelModel.findOne(opt.query);
+            const channel;
+            if(opt.hasOwnProperty('lean')){
+                channel = channelModel.findOne(opt.query).lean;
+            } else {
+                channel = channelModel.findOne(opt.query);
+            }
 
             return channel;
         }

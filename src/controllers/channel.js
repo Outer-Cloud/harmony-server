@@ -15,6 +15,7 @@ module.exports = [
           };
           const opt = {
             query,
+            lean:true,
           };
 
           const channel = await channelRepository.get(opt);
