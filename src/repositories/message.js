@@ -18,7 +18,7 @@ module.exports = [
       get,
 
       getMessageForChannel: async (opt) => {
-        const messages = await msgModel.find(opt.query); //todo: sort and return limit
+        const messages = await msgModel.find(opt.query).lean(); //todo: sort and return limit
 
         const messageBunch = [];
 
