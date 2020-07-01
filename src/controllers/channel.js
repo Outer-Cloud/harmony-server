@@ -38,7 +38,10 @@ module.exports = [
             query,
           };
 
-          const channel = await channelRepository.get(opt);
+          const channel = await channelRepository.get({
+            query,
+            lean:true
+          });
           if (!channel) {
             const err = new Error(errorCodes.CHANNEL_NOT_EXIST);
             err.name = errorCodes.CHANNEL_NOT_EXIST;
@@ -67,7 +70,10 @@ module.exports = [
             updates,
           };
 
-          const channel = await channelRepository.get({ query });
+          const channel = await channelRepository.get({ 
+            query,
+            lean:true
+           });
           if (!channel) {
             const err = new Error(errorCodes.CHANNEL_NOT_EXIST);
             err.name = errorCodes.CHANNEL_NOT_EXIST;

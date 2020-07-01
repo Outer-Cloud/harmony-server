@@ -83,6 +83,7 @@ module.exports = [
 
           const message = await msgRepository.get({
             query,
+            lean:true
           });
 
           if (!message) {
@@ -118,6 +119,7 @@ module.exports = [
 
           const opt = {
             query,
+            lean:true
           };
 
           const message = await msgRepository.get(opt);
