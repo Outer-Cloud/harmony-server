@@ -36,7 +36,10 @@ module.exports = [
 
       addFriend: async (req, res, next) => {
         try {
-          const friendId = await accountRepository.getUserId(req.body);
+          const friendId = await accountRepository.getUserId({
+            query: req.body,
+            field: "_id",
+          });
 
           if (!friendId || req.auth.id.toString() === friendId.toString()) {
             const error = new Error(errorCodes.USER_DOES_NOT_EXIST);

@@ -9,7 +9,7 @@ module.exports = [
       invalid: {
         base,
         account: [...base, "tokens", "discriminator"],
-        profile: [...base, "avatar", "account"],
+        profile: [...base, "age"],
       },
       isValid: (query, schema, invalid) => {
         const validFields = Object.keys(schema).filter((field) => {

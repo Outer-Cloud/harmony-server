@@ -1,79 +1,63 @@
 module.exports = [
   "profileRepository",
+  "accountRepository",
   "errors",
-  "values",
-  "httpStatus",
   "utils",
-  (profileRepository, errors, values, httpStatus, utils) => {
-    const codes = httpStatus.statusCodes;
-    const constants = values.constants;
+  (profileRepository, accountRepository, errors, utils) => {
     const errorCodes = errors.errorCodes;
     const { isValid, invalid } = utils;
 
     return {
-      create: async (req, res, next) => {
-        try {
-          if (!isValid(req.body, profileRepository.getSchema(), invalid.profile)) {
-            const error = new Error(errorCodes.INVALID_UPDATES);
-            error.name = errorCodes.INVALID_UPDATES;
-            throw error;
-          }
-
-          const newProfile = await profileRepository.create({
-            profile: {
-              ...req.body,
-              language: req.body.language || constants.EN,
-              status: constants.STATUS_ONLINE,
-              account: req.auth.id,
-            },
-          });
-
-          res.status(codes.CREATED).json(newProfile);
-        } catch (error) {
-          next(error);
-        }
-      },
-
       get: async (req, res, next) => {
         try {
+          const profileId = await accountRepository.getField({
+            query: { _id: req.auth.id },
+            field: "profile",
+          });
+
           const query = {
-            account: req.auth.id,
+            _id: profileId,
           };
 
           const projection = {
-            servers: 0,
-            directMessages: 0,
-            friends: 0,
-            blocked: 0,
-            pending: 0,
             _id: 0,
-            __v: 0,
           };
 
           const opts = {
             query,
             projection,
-            lean: true,
+            lean: {
+              virtuals: true,
+            },
           };
 
           const result = await profileRepository.get(opts);
+          delete result.id;
 
           res.json(result || {});
         } catch (error) {
+          console.log(error);
           next(error);
         }
       },
 
       update: async (req, res, next) => {
         try {
-          if (!isValid(req.body, profileRepository.getSchema(), invalid.profile)) {
+          if (
+            !isValid(req.body, profileRepository.getSchema(), invalid.profile)
+          ) {
             const error = new Error(errorCodes.INVALID_UPDATES);
             error.name = errorCodes.INVALID_UPDATES;
             throw error;
           }
 
+          const profileId = await accountRepository.getField({
+            query: { _id: req.auth.id },
+            field: "profile",
+          });
+
           const query = {
-            account: req.auth.id,
+            _id: profileId,
           };
 
           const updates = req.body;
@@ -84,6 +68,8 @@ module.exports = [
           };
 
           const result = await profileRepository.update(opt);
+          delete result._id;
+          delete result.id;
 
           res.json(result);
         } catch (error) {
