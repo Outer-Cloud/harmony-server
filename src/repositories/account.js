@@ -2,16 +2,16 @@ module.exports = [
   "accountModel",
   "MAX_ALLOWED",
   (accountModel, MAX_ALLOWED) => {
-    const create = async (opts) => {
+    const create = async (newAccount) => {
       const randInt = Math.floor(Math.random() * MAX_ALLOWED + 1);
 
-      const newAccount = new accountModel({
-        ...opts.newAccount,
+      const account = new accountModel({
+        ...newAccount,
         discriminator: randInt < 1000 ? `0${randInt}` : randInt,
       });
-      await newAccount.save();
+      await account.save();
 
-      return newAccount._id;
+      return account;
     };
 
     const get = async (opts) => {
@@ -64,14 +64,13 @@ module.exports = [
       account.save();
     };
 
-    const getUserId = async (opts) => {
+    const getField = async (opts) => {
       const account =
         (await get({
-          query: { ...opts },
-          projection: { _id: 1 },
+          query: { ...opts.query },
           lean: true,
         })) || {};
-      return account._id;
+      return account[opts.field];
     };
 
     const findByEmail = async (email) => {
@@ -101,7 +100,7 @@ module.exports = [
       update,
       delete: deleteObj,
       findByEmail,
-      getUserId,
+      getField,
       getSchema,
       get,
       insertToken,

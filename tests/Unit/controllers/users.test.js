@@ -4,6 +4,8 @@ const getUsersController = usersFactory[usersFactory.length - 1];
 const errorsFactory = require("../../../src/utils/error/errors");
 const getErrorsController = errorsFactory[errorsFactory.length - 1];
 
+const values = require("../../../src/utils/values");
+
 const httpStatus = require("../../../src/utils/httpStatus");
 const errors = getErrorsController(httpStatus);
 
@@ -13,13 +15,20 @@ const statusCodes = httpStatus.statusCodes;
 const email = "test@test.com";
 const password = "password";
 const userName = "test";
+const name = "asdf";
+const birthDate = "June, 21, 1993";
+const language = "Some language";
 
 const expectedEncryptedPassword = "encrypted password";
-const expectedSchema = {
+const expectedAccountSchema = {
+  field1: "some value",
+};
+const expectedProfileSchema = {
   field1: "some value",
 };
 const expectedToken = "adfa8324adradf";
 const expectedAccountId = "asd2123";
+const expectedProfileId = "asdfa2132";
 
 const expectedAccount = {
   userName,
@@ -36,6 +45,12 @@ const newAccount = {
   userName,
   email,
   password,
+};
+
+const newProfile = {
+  name,
+  birthDate,
+  language,
 };
 
 const unknownError = new Error(errorCodes.UNKNOWN);
@@ -62,21 +77,26 @@ describe("Users controller tests", () => {
     bcrypt.hash = jest.fn(() => expectedEncryptedPassword);
 
     accountRepository.getSchema = jest.fn(() => {
-      return expectedSchema;
+      return expectedAccountSchema;
     });
     accountRepository.insertToken = jest.fn();
     accountRepository.get = jest.fn(() => {
       return {
         _id: expectedAccountId,
+        profile: expectedProfileId,
         ...expectedAccount,
       };
     });
     profileRepository.get = jest.fn(() => {
       return expectedProfile;
     });
+    profileRepository.getSchema = jest.fn(() => {
+      return expectedProfileSchema;
+    });
     utils.generateToken = jest.fn(() => expectedToken);
     utils.invalid = {
       account: ["field1"],
+      profile: ["field1"],
     };
     utils.isValidPassword = jest.fn(() => true);
     utils.isValid = jest.fn(() => true);
@@ -91,7 +111,8 @@ describe("Users controller tests", () => {
       groupsRepository,
       httpStatus,
       errors,
-      utils
+      utils,
+      values
     );
   });
 
@@ -112,13 +133,13 @@ describe("Users controller tests", () => {
     };
 
     const expectedProfileQuery = {
-      account: expectedAccountId,
+      _id: expectedProfileId,
     };
 
     const expectedProfileProjection = {
       _id: 0,
-      __v: 0,
       age: 0,
+      birthDate: 0,
       name: 0,
     };
 
@@ -183,14 +204,42 @@ describe("Users controller tests", () => {
   });
 
   describe("Create account", () => {
+    const req = {
+      body: { account: newAccount, profile: newProfile },
+    };
+
+    beforeEach(() => {
+      accountRepository.create = jest.fn((newAccount) => ({
+        ...newAccount,
+        _id: expectedAccountId,
+        tokens: [],
+        password: expectedEncryptedPassword,
+        toJSON() {
+          return {
+            ...newAccount,
+            tokens: [],
+            password: expectedEncryptedPassword,
+          };
+        },
+      }));
+
+      profileRepository.create = jest.fn((newProfile) => ({
+        ...newProfile,
+        _id: expectedProfileId,
+        toJSON() {
+          return { ...newProfile };
+        },
+      }));
+
+      relationshipsRepository.create = jest.fn();
+
+      groupsRepository.create = jest.fn();
+    });
+
     test("Should create account successfully and return token given correct input", async () => {
       const expectedNewAccount = {
         ...newAccount,
         password: expectedEncryptedPassword,
-      };
-
-      const req = {
-        body: { ...newAccount },
       };
 
       const res = {
@@ -202,25 +251,29 @@ describe("Users controller tests", () => {
         }),
       };
 
-      accountRepository.create = jest.fn((opts) => {
-        return expectedAccountId;
-      });
-
-      relationshipsRepository.create = jest.fn();
-
-      groupsRepository.create = jest.fn();
-
       await controller.create(req, res, next);
 
-      expect(utils.isValidPassword).toBeCalledWith(password);
-      expect(utils.isValid).toBeCalledWith(
-        req.body,
-        expectedSchema,
+      expect(utils.isValid).nthCalledWith(
+        1,
+        newProfile,
+        expectedProfileSchema,
+        utils.invalid.profile
+      );
+      expect(utils.isValid).nthCalledWith(
+        2,
+        newAccount,
+        expectedAccountSchema,
         utils.invalid.account
       );
+      expect(utils.isValidPassword).toBeCalledWith(password);
       expect(bcrypt.hash).toBeCalledWith(password, 8);
+      expect(profileRepository.create).toBeCalledWith({
+        ...newProfile,
+        status: values.constants.STATUS_ONLINE,
+      });
       expect(accountRepository.create).toBeCalledWith({
-        newAccount: expectedNewAccount,
+        ...expectedNewAccount,
+        profile: expectedProfileId,
       });
       expect(relationshipsRepository.create).toBeCalledWith(expectedAccountId);
       expect(groupsRepository.create).toBeCalledWith(expectedAccountId);
@@ -230,22 +283,28 @@ describe("Users controller tests", () => {
         expectedToken
       );
       expect(res.status).toBeCalledWith(statusCodes.CREATED);
-      expect(res.json).toBeCalledWith({ token: expectedToken });
+      expect(res.json).toBeCalledWith({
+        id: expectedAccountId,
+        account: {
+          email,
+          userName,
+        },
+        profile: {
+          ...newProfile,
+          status: values.constants.STATUS_ONLINE,
+        },
+        token: expectedToken,
+      });
       expect(next).toHaveBeenCalledTimes(0);
     });
 
     test("Should throw invalid object error when request contains invalid falids and handle it", async () => {
       const expectedError = new Error(errorCodes.INVALID_OBJECT);
       expectedError.name = errorCodes.INVALID_OBJECT;
-      const expectedSchema = {
+      const expectedAccountSchema = {
         field1: "some value",
       };
 
-      const req = {
-        body: {
-          ...newAccount,
-        },
-      };
       const res = {};
 
       utils.isValid = jest.fn(() => false);
@@ -258,14 +317,14 @@ describe("Users controller tests", () => {
         groupsRepository,
         httpStatus,
         errors,
-        utils
+        utils,
+        values
       );
 
       await controller.create(req, res, next);
-      expect(utils.isValidPassword).toBeCalledWith(password);
       expect(utils.isValid).toBeCalledWith(
-        req.body,
-        expectedSchema,
+        newAccount,
+        expectedAccountSchema,
         utils.invalid.account
       );
       expect(next).toBeCalledWith(expectedError);
@@ -275,11 +334,6 @@ describe("Users controller tests", () => {
       const expectedError = new Error(errorCodes.INVALID_PASSWORD);
       expectedError.name = errorCodes.INVALID_PASSWORD;
 
-      const req = {
-        body: {
-          ...newAccount,
-        },
-      };
       const res = {};
       const next = jest.fn();
 
@@ -293,7 +347,8 @@ describe("Users controller tests", () => {
         groupsRepository,
         httpStatus,
         errors,
-        utils
+        utils,
+        values
       );
 
       await controller.create(req, res, next);
@@ -307,7 +362,7 @@ describe("Users controller tests", () => {
         password: expectedEncryptedPassword,
       };
 
-      const expectedSchema = {
+      const expectedAccountSchema = {
         field1: "some value",
       };
 
@@ -315,23 +370,13 @@ describe("Users controller tests", () => {
         throw unknownError;
       });
 
-      const req = {
-        body: {
-          ...newAccount,
-        },
-      };
       const res = {};
 
       await controller.create(req, res, next);
-      expect(utils.isValidPassword).toBeCalledWith(password);
-      expect(utils.isValid).toBeCalledWith(
-        req.body,
-        expectedSchema,
-        utils.invalid.account
-      );
-      expect(bcrypt.hash).toBeCalledWith(password, 8);
+
       expect(accountRepository.create).toBeCalledWith({
-        newAccount: expectedNewAccount,
+        ...expectedNewAccount,
+        profile: expectedProfileId,
       });
       expect(next).toBeCalledWith(unknownError);
     });

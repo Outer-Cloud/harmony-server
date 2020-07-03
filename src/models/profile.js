@@ -1,46 +1,43 @@
 const mongoose = require("mongoose");
+const mongooseLeanVirtuals = require("mongoose-lean-virtuals");
 
-const profileSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
+const opts = { toJSON: { virtuals: true } };
+
+const profileSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    birthDate: {
+      type: Date,
+      required: true,
+      immutable: true,
+      validate: (v) => +new Date().getFullYear() - +v.getFullYear() >= 13,
+    },
+    status: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    language: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    statusMessage: {
+      type: String,
+      trim: true,
+    },
   },
-  age: {
-    type: Number,
-    required: true,
-    min: [7, "Too young"],
-  },
-  status: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  language: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  statusMessage: {
-    type: String,
-    trim: true,
-  },
-  account: {
-    type: mongoose.Schema.ObjectId,
-    required: true,
-    unique: true,
-  },
+  opts
+);
+
+profileSchema.virtual("age").get(function () {
+  return +new Date().getFullYear() - +this.birthDate.getFullYear();
 });
-
-profileSchema.methods.toJSON = function () {
-  const profile = this;
-  const profileObject = profile.toObject();
-
-  delete profileObject._id;
-  delete profileObject.__v;
-
-  return profileObject;
-};
+profileSchema.plugin(mongooseLeanVirtuals);
 
 module.exports = [
   "connection",

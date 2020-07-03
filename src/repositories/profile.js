@@ -4,7 +4,7 @@ module.exports = [
     const get = async (opts) => {
       const profile = await profileModel
         .findOne(opts.query)
-        .select(opts.projection)
+        .select({ __v: 0, ...opts.projection })
         .lean(opts.lean);
 
       return profile;
@@ -12,11 +12,11 @@ module.exports = [
 
     return {
       get,
-      create: async (opts) => {
-        const newProfile = new profileModel(opts.profile);
-        await newProfile.save();
+      create: async (newProfile) => {
+        const profile = new profileModel(newProfile);
+        await profile.save();
 
-        return newProfile;
+        return profile;
       },
 
       update: async (opts) => {

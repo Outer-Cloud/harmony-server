@@ -66,7 +66,7 @@ container.factory("msgController", require("./controllers/message"));
 container.factory("routes", require("./routes/"));
 container.factory("usersRoute", require("./routes/users"));
 container.factory("meRoute", require("./routes/users/me"));
-container.factory("profileRoute", require("./routes/profile"));
+container.factory("profileRoute", require("./routes/users/routes/profile"));
 container.factory("accountRoute", require("./routes/users/routes/account"));
 container.factory("relationshipsRoute", require("./routes/relationships"));
 container.factory("authRoute", require("./routes/auth"));
