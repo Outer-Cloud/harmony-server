@@ -27,7 +27,7 @@ Routes:/api
 		Relationships /relationships
 			Blocked Users  /block
 				Get /   //retrieves all blocked users
-				Post/:uid  //block user with id
+				Post/  //block user with id, id in body
 				Delete/:uid //unblock user with id
 			Friends  /friends
 				Get /     //retrieves all friends
