@@ -2,14 +2,7 @@ module.exports = [
   "msgModel",
   (msgModel) => {
     const get = async (opt) => {
-      const message;
-      if(opt.hasOwnProperty('lean')){
-        message = await msgModel.findOne(opt.query).lean();
-      } else {
-        message = await msgModel.findOne(opt.query);
-      }
-       
-
+      const message = await msgModel.findOne(opt.query).lean(opt.lean);
       return message;
     };
 
