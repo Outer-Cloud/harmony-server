@@ -14,6 +14,10 @@ module.exports = [
       status: codes.UNAUTHORIZED,
       message: "Unable to login",
     };
+    errorInfo[(errorCodes.PASSWORD_MISMATCH = "PasswordMismatchError")] = {
+      status: codes.UNAUTHORIZED,
+      message: "Password does not match.",
+    };
     errorInfo[(errorCodes.PLEASE_AUTHENTICATE = "PleaseAuthenticateError")] = {
       status: codes.UNAUTHORIZED,
       message: "Please log in",

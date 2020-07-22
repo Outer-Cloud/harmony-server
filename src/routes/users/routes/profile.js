@@ -6,9 +6,8 @@ module.exports = [
   (profileController, auth) => {
     const router = new express.Router();
 
-    router.post("/me", auth, profileController.create);
-    router.get("/me", auth, profileController.get);
-    router.put("/me", auth, profileController.update);
+    router.get("/", auth, profileController.get);
+    router.put("/", auth, profileController.update);
 
     return router;
   },

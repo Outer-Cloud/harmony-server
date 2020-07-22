@@ -1,9 +1,9 @@
 module.exports = [
   "jsonwebtoken",
-  "accountController",
+  "authController",
   "errors",
   "JWT_SECRET",
-  (jsonwebtoken, accountController, errors, JWT_SECRET) => {
+  (jsonwebtoken, authController, errors, JWT_SECRET) => {
     const errorCodes = errors.errorCodes;
 
     const loginError = new Error(errorCodes.PLEASE_AUTHENTICATE);
@@ -22,7 +22,7 @@ module.exports = [
         const token = safeParse(req);
         const decoded = jsonwebtoken.verify(token, JWT_SECRET);
 
-        const isValid = await accountController.checkToken(decoded._id, token);
+        const isValid = await authController.checkToken(decoded._id, token);
 
         if (!isValid) {
           throw loginError;
