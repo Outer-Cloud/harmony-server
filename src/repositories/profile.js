@@ -31,11 +31,8 @@ module.exports = [
         return profile;
       },
 
-      delete: async (opts) => {
-        const profile = await get({ query: opts.query });
-        await profile.remove();
-
-        return profile;
+      delete: async (id) => {
+        return profileModel.findByIdAndDelete(id);
       },
 
       getSchema: () => {
