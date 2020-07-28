@@ -55,9 +55,7 @@ module.exports = [
         try {
           const { newPassword = "", password = "", ...body } = req.body;
 
-          if (
-            !isValid(body, accountRepository.getSchema(), invalid.account)
-          ) {
+          if (!isValid(body, accountRepository.getSchema(), invalid.account)) {
             const error = new Error(errorCodes.INVALID_UPDATES);
             error.name = errorCodes.INVALID_UPDATES;
             throw error;
@@ -117,11 +115,11 @@ module.exports = [
 
       delete: async (req, res, next) => {
         try {
-          await accountRepository.delete({ query: { _id: req.auth.id } });
-          await profileRepository.delete({ query: { account: req.auth.id } });
-          await relationshipsRepository.delete({
-            query: { account: req.auth.id },
+          const deleted = await accountRepository.delete({
+            query: { _id: req.auth.id },
           });
+          await profileRepository.delete(deleted.profile);
+          await relationshipsRepository.delete(deleted.relationships);
           await groupsRepository.delete({ query: { account: req.auth.id } });
           res.send();
         } catch (error) {
