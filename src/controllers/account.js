@@ -22,12 +22,12 @@ module.exports = [
     const { isValid, invalid, isValidPassword } = utils;
 
     return {
-      get: async (req, res, next) => {
-        try {
-          res.json(req.users.me || {});
-        } catch (error) {
-          next(error);
-        }
+      get: async (req, res) => {
+        delete req.users.me.tokens;
+        delete req.users.me.password;
+        delete req.users.me.profile;
+        delete req.users.me.relationships;
+        res.json(req.users.me || {});
       },
 
       update: async (req, res, next) => {
@@ -40,17 +40,7 @@ module.exports = [
             throw error;
           }
 
-          const curr = await accountRepository.get({
-            query: {
-              _id: req.auth.id,
-            },
-            projection: {
-              tokens: 0,
-              _id: 0,
-              discriminator: 0,
-            },
-            lean: true,
-          });
+          const { tokens, ...curr } = req.users.me;
 
           const currPassword = curr.password;
           delete curr.password;

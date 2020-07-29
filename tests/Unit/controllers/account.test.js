@@ -17,13 +17,15 @@ const expectedEncryptedPassword = "encrypted password";
 const expectedSchema = {
   field1: "some value",
 };
+
+const expectedToken = "adfa8324adradf";
+const expectedAccountId = "adafddaa";
+
 const expectedAccount = {
+  _id: expectedAccountId,
   userName,
   email,
 };
-
-const expectedToken = "adfa8324adradf";
-const expectedAccountId = "asd2123";
 
 const unknownError = new Error(errorCodes.UNKNOWN);
 unknownError.name = errorCodes.UNKNOWN;
@@ -37,9 +39,28 @@ describe("Account Controller tests", () => {
   let groupsRepository = {};
   let utils = {};
   let controller = null;
-  let next = jest.fn();
+  let next = jest.fn((error) => console.log(error));
+  let req = {
+    users: {
+      me: {
+        tokens: [],
+        password,
+        ...expectedAccount,
+      },
+    },
+  };
 
   beforeEach(() => {
+    req = {
+      users: {
+        me: {
+          tokens: [],
+          password,
+          ...expectedAccount,
+        },
+      },
+    };
+
     _ = {};
     bcrypt = {};
     accountRepository = {};
@@ -50,16 +71,6 @@ describe("Account Controller tests", () => {
 
     bcrypt.hash = jest.fn(() => expectedEncryptedPassword);
 
-    accountRepository.get = jest.fn((opts) => {
-      if (opts.projection.password === 0) {
-        return expectedAccount;
-      }
-
-      return {
-        ...expectedAccount,
-        password,
-      };
-    });
     accountRepository.getSchema = jest.fn(() => {
       return expectedSchema;
     });
@@ -72,7 +83,7 @@ describe("Account Controller tests", () => {
     utils.isValidPassword = jest.fn(() => true);
     utils.isValid = jest.fn(() => true);
 
-    next = jest.fn();
+    next = jest.fn((error) => console.log(error));
 
     controller = getAccountController(
       _,
@@ -81,7 +92,6 @@ describe("Account Controller tests", () => {
       profileRepository,
       relationshipsRepository,
       groupsRepository,
-      httpStatus,
       errors,
       utils
     );
@@ -89,71 +99,12 @@ describe("Account Controller tests", () => {
 
   describe("Get account", () => {
     test("Should return user account", async () => {
-      const expectedQuery = {
-        _id: expectedAccountId,
-      };
-
-      const expectedPojection = {
-        tokens: 0,
-        password: 0,
-      };
-
-      const expectedOpts = {
-        query: expectedQuery,
-        projection: expectedPojection,
-        lean: true,
-      };
-
-      const req = {
-        auth: {
-          id: expectedAccountId,
-        },
-      };
-
       const res = {
         json: jest.fn(),
       };
 
       await controller.get(req, res, next);
-
-      expect(accountRepository.get).toBeCalledWith(expectedOpts);
       expect(res.json).toBeCalledWith(expectedAccount);
-    });
-    test("Should handle errors", async () => {
-      accountRepository.get = jest.fn((opts) => {
-        throw unknownError;
-      });
-
-      const expectedQuery = {
-        _id: expectedAccountId,
-      };
-
-      const expectedPojection = {
-        tokens: 0,
-        password: 0,
-      };
-
-      const expectedOpts = {
-        query: expectedQuery,
-        projection: expectedPojection,
-        lean: true,
-      };
-
-      const req = {
-        auth: {
-          id: expectedAccountId,
-        },
-      };
-
-      const res = {
-        json: jest.fn(),
-      };
-
-      await controller.get(req, res, next);
-
-      expect(accountRepository.get).toBeCalledWith(expectedOpts);
-      expect(res.json).toHaveBeenCalledTimes(0);
-      expect(next).toBeCalledWith(unknownError);
     });
   });
 
@@ -164,17 +115,16 @@ describe("Account Controller tests", () => {
     };
 
     beforeEach(() => {
+      req.auth = {};
       accountRepository.update = jest.fn();
     });
 
     test("Should update successfully when the password matches and there is changes ", async () => {
-      const req = {
-        body: {
-          ...expectedUpdates,
-          password,
-        },
-        auth: {},
+      req.body = {
+        ...expectedUpdates,
+        password,
       };
+
       const res = {
         send: jest.fn(),
       };
@@ -190,7 +140,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -214,13 +163,11 @@ describe("Account Controller tests", () => {
     });
 
     test("Should update password with new password successfully when old password matches", async () => {
-      const req = {
-        body: {
-          password,
-          newPassword: password,
-        },
-        auth: {},
+      req.body = {
+        password,
+        newPassword: password,
       };
+
       const res = {
         send: jest.fn(),
       };
@@ -239,7 +186,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -269,12 +215,9 @@ describe("Account Controller tests", () => {
     test("Should return 200 and perform no additional action if there are no changes and password is not changed", async () => {
       accountRepository.update = jest.fn();
 
-      const req = {
-        body: {
-          ...expectedUpdates,
-          password,
-        },
-        auth: {},
+      req.body = {
+        ...expectedUpdates,
+        password,
       };
 
       const res = {
@@ -292,7 +235,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -306,10 +248,9 @@ describe("Account Controller tests", () => {
     test("Should use user id from jwt", async () => {
       const expectedId = "Should be called with this";
 
-      const req = {
-        body: { ...expectedUpdates, password },
-        auth: { id: expectedId },
-      };
+      req.body = { ...expectedUpdates, password };
+      req.auth = { id: expectedId };
+
       const res = {
         send: () => {},
       };
@@ -330,7 +271,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -349,13 +289,10 @@ describe("Account Controller tests", () => {
 
       accountRepository.update = jest.fn();
 
-      const req = {
-        body: {
-          ...expectedUpdates,
-          password,
-          newPassword: password,
-        },
-        auth: {},
+      req.body = {
+        ...expectedUpdates,
+        password,
+        newPassword: password,
       };
 
       const res = {};
@@ -372,7 +309,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -388,7 +324,7 @@ describe("Account Controller tests", () => {
       const expectedError = new Error(errorCodes.INVALID_UPDATES);
       expectedError.name = errorCodes.INVALID_UPDATES;
 
-      const req = { body: { ...expectedUpdates } };
+      req.body = { ...expectedUpdates };
       const res = {};
       const next = jest.fn();
 
@@ -401,7 +337,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -417,13 +352,10 @@ describe("Account Controller tests", () => {
 
       accountRepository.update = jest.fn();
 
-      const req = {
-        body: {
-          ...expectedUpdates,
-          password,
-          newPassword: password,
-        },
-        auth: {},
+      req.body = {
+        ...expectedUpdates,
+        password,
+        newPassword: password,
       };
       const res = {};
       const next = jest.fn();
@@ -440,7 +372,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -457,7 +388,7 @@ describe("Account Controller tests", () => {
         throw unknownError;
       });
 
-      const req = { body: { ...expectedUpdates, password }, auth: {} };
+      req.body = { ...expectedUpdates, password };
       const res = {};
       const next = jest.fn();
 
@@ -475,7 +406,6 @@ describe("Account Controller tests", () => {
         profileRepository,
         relationshipsRepository,
         groupsRepository,
-        httpStatus,
         errors,
         utils
       );
@@ -487,6 +417,21 @@ describe("Account Controller tests", () => {
   });
 
   describe("Delete account", () => {
+    const expectedProfile = "profile";
+    const expectedRelationships = "relationships";
+
+    beforeEach(() => {
+      accountRepository.delete = jest.fn(() => {
+        return {
+          profile: expectedProfile,
+          relationships: expectedRelationships,
+        };
+      });
+      profileRepository.delete = jest.fn();
+      relationshipsRepository.delete = jest.fn();
+      groupsRepository.delete = jest.fn();
+    });
+
     test("Should delete user account and associated profile, relationships, and server list", async () => {
       const req = { body: {}, auth: {} };
       const res = {
@@ -495,16 +440,13 @@ describe("Account Controller tests", () => {
       };
       const next = jest.fn();
 
-      accountRepository.delete = jest.fn();
-      profileRepository.delete = jest.fn();
-      relationshipsRepository.delete = jest.fn();
-      groupsRepository.delete = jest.fn();
-
       await controller.delete(req, res, next);
 
       expect(accountRepository.delete).toHaveBeenCalledTimes(1);
-      expect(profileRepository.delete).toHaveBeenCalledTimes(1);
-      expect(relationshipsRepository.delete).toHaveBeenCalledTimes(1);
+      expect(profileRepository.delete).toBeCalledWith(expectedProfile);
+      expect(relationshipsRepository.delete).toBeCalledWith(
+        expectedRelationships
+      );
       expect(groupsRepository.delete).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
       expect(res.send).toHaveBeenCalledTimes(1);
@@ -519,21 +461,10 @@ describe("Account Controller tests", () => {
       };
       const next = () => {};
 
-      accountRepository.delete = jest.fn();
-      profileRepository.delete = jest.fn();
-      relationshipsRepository.delete = jest.fn();
-      groupsRepository.delete = jest.fn();
-
       await controller.delete(req, res, next);
 
       expect(accountRepository.delete).toBeCalledWith({
         query: { _id: expectedId },
-      });
-      expect(profileRepository.delete).toBeCalledWith({
-        query: { account: expectedId },
-      });
-      expect(relationshipsRepository.delete).toBeCalledWith({
-        query: { account: expectedId },
       });
       expect(groupsRepository.delete).toBeCalledWith({
         query: { account: expectedId },

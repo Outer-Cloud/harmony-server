@@ -4,10 +4,6 @@ module.exports = [
   (_, accountRepository) => (isUser) => async (req, res, next) => {
     try {
       const opts = {
-        projection: {
-          tokens: 0,
-          password: 0,
-        },
         lean: true,
       };
 
