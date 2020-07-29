@@ -43,24 +43,6 @@ module.exports = [
         }
       },
 
-      getRoom: async (req, res, next) => {
-        try {
-          const query = {
-            room: req.params.room,
-          };
-
-          const opt = {
-            query,
-          };
-
-          const message = await msgRepository.getMessageForRoom(opt);
-
-          res.json(message);
-        } catch (error) {
-          next(error);
-        }
-      },
-
       getMessage: async (req, res, next) => {
         try {
           const query = {
@@ -101,6 +83,7 @@ module.exports = [
 
           const message = await msgRepository.get({
             query,
+            lean:true
           });
 
           if (!message) {
@@ -136,6 +119,7 @@ module.exports = [
 
           const opt = {
             query,
+            lean:true
           };
 
           const message = await msgRepository.get(opt);

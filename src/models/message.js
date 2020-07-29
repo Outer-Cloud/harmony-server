@@ -10,10 +10,10 @@ const messageSchema = new mongoose.Schema({
     required: true,
     ref: "User",
   },
-  room: {
+  Channel: {
     type: mongoose.Schema.ObjectId,
     required: true,
-    ref: "Room",
+    ref: "Channel",
   },
   time: {
     type: Date,

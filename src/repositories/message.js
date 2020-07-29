@@ -2,8 +2,7 @@ module.exports = [
   "msgModel",
   (msgModel) => {
     const get = async (opt) => {
-      const message = await msgModel.findOne(opt.query);
-
+      const message = await msgModel.findOne(opt.query).lean(opt.lean);
       return message;
     };
 
@@ -15,18 +14,10 @@ module.exports = [
         return newMessage;
       },
 
-      createMany: async (opt) => {
-        const array = opt.queries;
-
-        const messages = await msgModel.insertMany(array);
-
-        return messages;
-      },
-
       get,
 
-      getMessageForRoom: async (opt) => {
-        const messages = await msgModel.find(opt.query); //todo: sort and return limit
+      getMessageForChannel: async (opt) => {
+        const messages = await msgModel.find(opt.query).lean(); //todo: sort and return limit
 
         const messageBunch = [];
 
