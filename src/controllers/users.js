@@ -86,6 +86,9 @@ module.exports = [
         }
       },
       create: async (req, res, next) => {
+        let newRelationships;
+        let newProfile;
+
         try {
           const isProfileValid = isValid(
             req.body.profile,
@@ -118,20 +121,22 @@ module.exports = [
 
           account.password = await bcrypt.hash(account.password, 8);
 
-          const newProfile = await profileRepository.create({
+          newProfile = await profileRepository.create({
             ...profile,
             language: profile.language || constants.EN,
             status: constants.STATUS_ONLINE,
           });
 
+          newRelationships = await relationshipsRepository.create();
+
           const newAccount = await accountRepository.create({
             ...account,
             profile: newProfile._id,
+            relationships: newRelationships._id,
           });
 
           const id = newAccount._id;
 
-          await relationshipsRepository.create(id);
           await groupsRepository.create(id);
 
           const token = await generateToken(id);
@@ -158,6 +163,8 @@ module.exports = [
 
           res.status(codes.CREATED).json(retVal);
         } catch (error) {
+          await profileRepository.delete(newProfile._id);
+          await relationshipsRepository.delete(newRelationships._id);
           next(error);
         }
       },
