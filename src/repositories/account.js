@@ -64,15 +64,6 @@ module.exports = [
       account.save();
     };
 
-    const getField = async (opts) => {
-      const account =
-        (await get({
-          query: { ...opts.query },
-          lean: true,
-        })) || {};
-      return account[opts.field];
-    };
-
     const findByEmail = async (email) => {
       const query = { email };
       const account = await get({ query, lean: true });
@@ -101,7 +92,6 @@ module.exports = [
       delete: deleteObj,
       exists: (query) => accountModel.exists(query),
       findByEmail,
-      getField,
       getSchema,
       get,
       insertToken,
