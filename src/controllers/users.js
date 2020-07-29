@@ -73,6 +73,7 @@ module.exports = [
 
           delete account._id;
           delete account.profile;
+          delete account.relationships;
 
           const returnVal = {
             id,
@@ -154,6 +155,7 @@ module.exports = [
           delete retVal.account.__v;
           delete retVal.account.id;
           delete retVal.account.profile;
+          delete retVal.account.relationships;
           delete retVal.account.tokens;
           delete retVal.account.password;
 
@@ -163,8 +165,13 @@ module.exports = [
 
           res.status(codes.CREATED).json(retVal);
         } catch (error) {
-          await profileRepository.delete(newProfile._id);
-          await relationshipsRepository.delete(newRelationships._id);
+          if (newProfile) {
+            await profileRepository.delete(newProfile._id);
+          }
+          if (newRelationships) {
+            await relationshipsRepository.delete(newRelationships._id);
+          }
+
           next(error);
         }
       },
