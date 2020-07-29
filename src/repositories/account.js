@@ -99,6 +99,7 @@ module.exports = [
       create,
       update,
       delete: deleteObj,
+      exists: (query) => accountModel.exists(query),
       findByEmail,
       getField,
       getSchema,

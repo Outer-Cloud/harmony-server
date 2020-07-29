@@ -52,22 +52,11 @@ module.exports = [
         }
       },
 
-      checkToken: async (id, token) => {
-        const opts = {
-          query: {
-            _id: id,
-            "tokens.token": token,
-          },
-          lean: true,
-        };
-
-        const login = await accountRepository.get(opts);
-
-        if (login) {
-          return true;
-        }
-
-        return false;
+      checkToken: (id, token) => {
+        return accountRepository.exists({
+          _id: id,
+          "tokens.token": token,
+        });
       },
     };
   },
