@@ -5,7 +5,6 @@ module.exports = [
   "profileRepository",
   "relationshipsRepository",
   "groupsRepository",
-  "httpStatus",
   "errors",
   "utils",
   (
