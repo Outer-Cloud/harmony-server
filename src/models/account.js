@@ -46,6 +46,11 @@ const accountSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    relationships: {
+      type: mongoose.Schema.ObjectId,
+      required: true,
+      unique: true,
+    },
   },
   opts
 );

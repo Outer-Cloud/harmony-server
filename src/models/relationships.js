@@ -1,13 +1,21 @@
 const mongoose = require("mongoose");
 
-const relationshipsSchema = new mongoose.Schema({
-  directMessages: [
-    {
+const pendingSubSchema = new mongoose.Schema(
+  {
+    id: {
       type: mongoose.Schema.ObjectId,
       required: true,
-      ref: "DirectMessage",
+      ref: "User",
     },
-  ],
+    type: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
+const relationshipsSchema = new mongoose.Schema({
   friends: {
     type: [
       {
@@ -29,25 +37,8 @@ const relationshipsSchema = new mongoose.Schema({
     validate: (v) => v !== null && v.length < 1000,
   },
   pending: {
-    type: [
-      {
-        id: {
-          type: mongoose.Schema.ObjectId,
-          required: true,
-          ref: "User",
-        },
-        type: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+    type: [pendingSubSchema],
     validate: (v) => v !== null && v.length < 1000,
-  },
-  account: {
-    type: mongoose.Schema.ObjectId,
-    required: true,
-    unique: true,
   },
 });
 
