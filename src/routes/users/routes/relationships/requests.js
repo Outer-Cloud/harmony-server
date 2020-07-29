@@ -6,7 +6,7 @@ module.exports = [
   "values",
   (attachUser, relationshipsController, values) => {
     const router = new express.Router();
-    const attach = attachUser(false);
+    const attach = attachUser();
 
     router.get(
       "/",
