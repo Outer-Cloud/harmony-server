@@ -1,5 +1,3 @@
-const { update } = require("lodash");
-
 module.exports = [
   "_",
   "bcrypt",
@@ -17,35 +15,16 @@ module.exports = [
     profileRepository,
     relationshipsRepository,
     groupsRepository,
-    httpStatus,
     errors,
     utils
   ) => {
-    const codes = httpStatus.statusCodes;
     const errorCodes = errors.errorCodes;
-    const { isValid, invalid, isValidPassword, generateToken } = utils;
+    const { isValid, invalid, isValidPassword } = utils;
 
     return {
       get: async (req, res, next) => {
         try {
-          const query = {
-            _id: req.auth.id,
-          };
-
-          const projection = {
-            tokens: 0,
-            password: 0,
-          };
-
-          const opts = {
-            query,
-            projection,
-            lean: true,
-          };
-
-          const result = await accountRepository.get(opts);
-
-          res.json(result || {});
+          res.json(req.users.me || {});
         } catch (error) {
           next(error);
         }

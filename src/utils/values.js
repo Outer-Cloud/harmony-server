@@ -8,4 +8,9 @@ module.exports = {
     OUTBOUND_REQUEST: "OUTBOUND_REQUEST",
     INBOUND_REQUEST: "INBOUND_REQUEST",
   },
+  relationshipTypes: {
+    friends: "friends",
+    blocked: "blocked",
+    pending: "pending",
+  }
 };

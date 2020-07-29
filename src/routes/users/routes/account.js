@@ -2,13 +2,12 @@ const express = require("express");
 
 module.exports = [
   "accountController",
-  "auth",
-  (accountController, auth) => {
+  (accountController) => {
     const router = new express.Router();
 
-    router.get("/", auth, accountController.get);
-    router.put("/", auth, accountController.update);
-    router.delete("/", auth, accountController.delete);
+    router.get("/", accountController.get);
+    router.put("/", accountController.update);
+    router.delete("/", accountController.delete);
 
     return router;
   },
