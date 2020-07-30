@@ -7,6 +7,35 @@ module.exports = [
     const { OUTBOUND_REQUEST, INBOUND_REQUEST } = values.constants;
     const { friends, blocked, pending } = values.relationshipTypes;
 
+    const acceptRequestAction = async (
+      userId,
+      userRelationshipsId,
+      targetId,
+      targetRelationshipsId
+    ) => {
+      await relationshipsRepository.removeFromRelationship(
+        userRelationshipsId,
+        { id: targetId },
+        pending
+      );
+      await relationshipsRepository.removeFromRelationship(
+        targetRelationshipsId,
+        { id: userId },
+        pending
+      );
+
+      await relationshipsRepository.addToRelationship(
+        userRelationshipsId,
+        targetId,
+        friends
+      );
+      await relationshipsRepository.addToRelationship(
+        targetRelationshipsId,
+        userId,
+        friends
+      );
+    };
+
     return {
       get: (type) => async (req, res, next) => {
         try {
@@ -55,7 +84,7 @@ module.exports = [
 
           if (
             !targetId ||
-            userId === targetId ||
+            targetId.toString() === userId.toString() ||
             isUserBlockedByTarget ||
             isTargetBlocked
           ) {
@@ -67,6 +96,12 @@ module.exports = [
           const shouldAdd = await relationshipsRepository.exists({
             _id: userRelationshipsId,
             friends: { $ne: targetId },
+            pending: { $not: { $elemMatch: { id: targetId } } },
+          });
+
+          const isAlreadyInBoundRequest = await relationshipsRepository.exists({
+            _id: userRelationshipsId,
+            pending: { $elemMatch: { id: targetId, type: INBOUND_REQUEST } },
           });
 
           if (shouldAdd) {
@@ -82,6 +117,13 @@ module.exports = [
               targetRelationshipsId,
               { id: userId, type: INBOUND_REQUEST },
               pending
+            );
+          } else if (isAlreadyInBoundRequest) {
+            await acceptRequestAction(
+              userId,
+              userRelationshipsId,
+              targetId,
+              targetRelationshipsId
             );
           }
 
@@ -109,26 +151,11 @@ module.exports = [
             throw error;
           }
 
-          await relationshipsRepository.removeFromRelationship(
-            userRelationshipsId,
-            { id: targetId },
-            pending
-          );
-          await relationshipsRepository.removeFromRelationship(
-            targetRelationshipsId,
-            { id: userId },
-            pending
-          );
-
-          await relationshipsRepository.addToRelationship(
+          await acceptRequestAction(
+            userId,
             userRelationshipsId,
             targetId,
-            friends
-          );
-          await relationshipsRepository.addToRelationship(
-            targetRelationshipsId,
-            userId,
-            friends
+            targetRelationshipsId
           );
 
           res.send();
@@ -191,7 +218,7 @@ module.exports = [
             friends: targetId,
           });
 
-          if (!isFriend) {
+          if (!isFriend || targetId.toString() === userId.toString()) {
             const error = new Error(errorCodes.USER_DOES_NOT_EXIST);
             error.name = errorCodes.USER_DOES_NOT_EXIST;
             throw error;
@@ -222,7 +249,7 @@ module.exports = [
           const targetId = req.users.target._id;
           const targetRelationshipsId = req.users.target.relationships;
 
-          if (!targetId) {
+          if (!targetId || targetId.toString() === userId.toString()) {
             const error = new Error(errorCodes.USER_DOES_NOT_EXIST);
             error.name = errorCodes.USER_DOES_NOT_EXIST;
             throw error;
@@ -279,6 +306,17 @@ module.exports = [
           const userRelationshipsId = req.users.me.relationships;
 
           const targetId = req.users.target._id;
+
+          const isBlocked = await relationshipsRepository.exists({
+            _id: userRelationshipsId,
+            blocked: targetId,
+          });
+
+          if (!isBlocked || targetId.toString() === userId.toString()) {
+            const error = new Error(errorCodes.USER_DOES_NOT_EXIST);
+            error.name = errorCodes.USER_DOES_NOT_EXIST;
+            throw error;
+          }
 
           await relationshipsRepository.removeFromRelationship(
             userRelationshipsId,
