@@ -67,7 +67,7 @@ module.exports = [
             lean: true,
           };
 
-          const profile = (await profileRepository.get(profiletOpts)) || {};
+          const profile = await profileRepository.get(profiletOpts);
 
           const id = account._id;
 
@@ -81,7 +81,7 @@ module.exports = [
             profile,
           };
 
-          res.json(returnVal || {});
+          res.json(returnVal);
         } catch (error) {
           next(error);
         }

@@ -26,9 +26,9 @@ module.exports = [
           };
 
           const result = await profileRepository.get(opts);
-          delete result.id;
 
-          res.json(result || {});
+          delete result.id;
+          return res.json(result);
         } catch (error) {
           next(error);
         }

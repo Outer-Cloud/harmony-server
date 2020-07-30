@@ -30,6 +30,8 @@ const profile = {
 const unknownError = new Error(errorCodes.UNKNOWN);
 unknownError.name = errorCodes.UNKNOWN;
 
+const notFound = "not found";
+
 describe("Profile Controller test", () => {
   let accountRepository = {};
   let profileRepository = {};
@@ -56,7 +58,11 @@ describe("Profile Controller test", () => {
     next = jest.fn();
 
     accountRepository.getField = jest.fn(() => profileId);
-    profileRepository.get = jest.fn(() => {
+    profileRepository.get = jest.fn((opts) => {
+      if (opts.query._id === notFound) {
+        return null;
+      }
+
       return { id: "adfasdf", ...profile };
     });
     profileRepository.update = jest.fn(() => ({ ...profile, _id: profileId }));
