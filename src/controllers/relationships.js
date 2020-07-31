@@ -192,7 +192,7 @@ module.exports = [
             (request) => request.id.toString() === targetId
           );
 
-          if (old.type === OUTBOUND_REQUEST) {
+          if (old && old.type === OUTBOUND_REQUEST) {
             await relationshipsRepository.removeFromRelationship(
               targetRelationshipsId,
               { id: userId },
@@ -306,6 +306,7 @@ module.exports = [
           const userRelationshipsId = req.users.me.relationships;
 
           const targetId = req.users.target._id;
+          const userId = req.users.me._id;
 
           const isBlocked = await relationshipsRepository.exists({
             _id: userRelationshipsId,

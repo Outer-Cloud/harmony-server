@@ -197,8 +197,8 @@ describe("Attach Account Middleware Test", () => {
       },
     };
 
-    expect(accountRepository.get).toHaveBeenNthCalledWith(1, userOpts);
-    expect(accountRepository.get).toHaveBeenNthCalledWith(2, targetOpts);
+    expect(accountRepository.get).nthCalledWith(1, userOpts);
+    expect(accountRepository.get).nthCalledWith(2, targetOpts);
     expect(req.users.me).toEqual(expectedUserAccount);
     expect(req.users.target).toEqual(expectedBodyAccount);
   });
