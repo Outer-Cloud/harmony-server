@@ -29,6 +29,7 @@ const expectedProfileSchema = {
 const expectedToken = "adfa8324adradf";
 const expectedAccountId = "asd2123";
 const expectedProfileId = "asdfa2132";
+const expectedRelationshipsId = "asdfa213adf2";
 
 const expectedAccount = {
   userName,
@@ -84,6 +85,7 @@ describe("Users controller tests", () => {
       return {
         _id: expectedAccountId,
         profile: expectedProfileId,
+        relationships: expectedRelationshipsId,
         ...expectedAccount,
       };
     });
@@ -230,8 +232,14 @@ describe("Users controller tests", () => {
           return { ...newProfile };
         },
       }));
+      profileRepository.delete = jest.fn();
 
-      relationshipsRepository.create = jest.fn();
+      relationshipsRepository.create = jest.fn(() => {
+        return {
+          _id: expectedRelationshipsId,
+        };
+      });
+      relationshipsRepository.delete = jest.fn();
 
       groupsRepository.create = jest.fn();
     });
@@ -274,8 +282,9 @@ describe("Users controller tests", () => {
       expect(accountRepository.create).toBeCalledWith({
         ...expectedNewAccount,
         profile: expectedProfileId,
+        relationships: expectedRelationshipsId,
       });
-      expect(relationshipsRepository.create).toBeCalledWith(expectedAccountId);
+      expect(relationshipsRepository.create).toBeCalledWith();
       expect(groupsRepository.create).toBeCalledWith(expectedAccountId);
       expect(utils.generateToken).toBeCalledWith(expectedAccountId);
       expect(accountRepository.insertToken).toBeCalledWith(
@@ -356,7 +365,7 @@ describe("Users controller tests", () => {
       expect(next).toBeCalledWith(expectedError);
     });
 
-    test("Should handle errors", async () => {
+    test("Should rollback objects that have been created if error occurs", async () => {
       const expectedNewAccount = {
         ...newAccount,
         password: expectedEncryptedPassword,
@@ -377,7 +386,12 @@ describe("Users controller tests", () => {
       expect(accountRepository.create).toBeCalledWith({
         ...expectedNewAccount,
         profile: expectedProfileId,
+        relationships: expectedRelationshipsId,
       });
+      expect(profileRepository.delete).toBeCalledWith(expectedProfileId);
+      expect(relationshipsRepository.delete).toBeCalledWith(
+        expectedRelationshipsId
+      );
       expect(next).toBeCalledWith(unknownError);
     });
   });

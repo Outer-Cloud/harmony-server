@@ -2,12 +2,11 @@ const express = require("express");
 
 module.exports = [
   "profileController",
-  "auth",
-  (profileController, auth) => {
+  (profileController) => {
     const router = new express.Router();
 
-    router.get("/", auth, profileController.get);
-    router.put("/", auth, profileController.update);
+    router.get("/", profileController.get);
+    router.put("/", profileController.update);
 
     return router;
   },

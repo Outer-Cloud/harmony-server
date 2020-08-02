@@ -15,4 +15,9 @@ module.exports = {
     SERVER_NEWS: 4,
     SERVER_VOICE: 5,
   },
+  relationshipTypes: {
+    friends: "friends",
+    blocked: "blocked",
+    pending: "pending",
+  }
 };

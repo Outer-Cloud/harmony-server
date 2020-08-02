@@ -10,7 +10,6 @@ const errors = getErrorsController(httpStatus);
 const errorCodes = errors.errorCodes;
 
 const profileSchema = ["field1"];
-const accountId = "asd2123";
 const profileId = "asdfa2132";
 
 const name = "asdf";
@@ -31,6 +30,8 @@ const profile = {
 const unknownError = new Error(errorCodes.UNKNOWN);
 unknownError.name = errorCodes.UNKNOWN;
 
+const notFound = "not found";
+
 describe("Profile Controller test", () => {
   let accountRepository = {};
   let profileRepository = {};
@@ -40,9 +41,12 @@ describe("Profile Controller test", () => {
   let res = {
     json: jest.fn(),
   };
+
   let req = {
-    auth: {
-      id: accountId,
+    users: {
+      me: {
+        profile: profileId,
+      },
     },
   };
 
@@ -54,7 +58,13 @@ describe("Profile Controller test", () => {
     next = jest.fn();
 
     accountRepository.getField = jest.fn(() => profileId);
-    profileRepository.get = jest.fn(() => profile);
+    profileRepository.get = jest.fn((opts) => {
+      if (opts.query._id === notFound) {
+        return null;
+      }
+
+      return { id: "adfasdf", ...profile };
+    });
     profileRepository.update = jest.fn(() => ({ ...profile, _id: profileId }));
     profileRepository.getSchema = jest.fn(() => {
       return profileSchema;
@@ -65,34 +75,26 @@ describe("Profile Controller test", () => {
     };
 
     req = {
-      auth: {
-        id: accountId,
+      users: {
+        me: {
+          profile: profileId,
+        },
       },
     };
 
-    controller = getProfileController(
-      profileRepository,
-      accountRepository,
-      errors,
-      utils
-    );
+    controller = getProfileController(profileRepository, errors, utils);
   });
 
   describe("Get profile", () => {
     test("Should get profile", async () => {
       await controller.get(req, res, next);
 
-      expect(accountRepository.getField).toBeCalledWith({
-        query: { _id: accountId },
-        field: "profile",
-      });
       expect(profileRepository.get).toBeCalledWith({
         lean: {
           virtuals: true,
         },
         projection: {
           _id: 0,
-          id: 0,
         },
         query: {
           _id: profileId,
@@ -134,10 +136,6 @@ describe("Profile Controller test", () => {
     test("Should update profile successfully", async () => {
       await controller.update(req, res, next);
 
-      expect(accountRepository.getField).toBeCalledWith({
-        query: { _id: accountId },
-        field: "profile",
-      });
       expect(profileRepository.update).toBeCalledWith({
         query: {
           _id: profileId,
@@ -152,12 +150,7 @@ describe("Profile Controller test", () => {
       expectedError.name = errorCodes.INVALID_UPDATES;
 
       utils.isValid = jest.fn(() => false);
-      controller = getProfileController(
-        profileRepository,
-        accountRepository,
-        errors,
-        utils
-      );
+      controller = getProfileController(profileRepository, errors, utils);
 
       await controller.update(req, res, next);
 

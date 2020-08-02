@@ -29,8 +29,9 @@ container.factory("channelTypes", require("./utils/channeltypes"))
 container.factory("repoError", require("./utils/error/repoError"));
 container.factory("errorHandler", require("./utils/error/handler"));
 
-//auth
+//middleware
 container.factory("auth", require("./middleware/authorization"));
+container.factory("attachUser", require("./middleware/account"));
 
 //db
 container.factory("connection", require("./db/dbConnection"));
@@ -72,7 +73,22 @@ container.factory("usersRoute", require("./routes/users"));
 container.factory("meRoute", require("./routes/users/me"));
 container.factory("profileRoute", require("./routes/users/routes/profile"));
 container.factory("accountRoute", require("./routes/users/routes/account"));
-container.factory("relationshipsRoute", require("./routes/relationships"));
+container.factory(
+  "relationshipsRoute",
+  require("./routes/users/routes/relationships")
+);
+container.factory(
+  "blockRoute",
+  require("./routes/users/routes/relationships/block")
+);
+container.factory(
+  "friendsRoute",
+  require("./routes/users/routes/relationships/friends")
+);
+container.factory(
+  "requestsRoute",
+  require("./routes/users/routes/relationships/requests")
+);
 container.factory("authRoute", require("./routes/auth"));
 container.factory("messageRoute", require("./routes/message"));
 container.factory("channelRoute", require("./routes/channel"));

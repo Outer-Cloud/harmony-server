@@ -67,12 +67,13 @@ module.exports = [
             lean: true,
           };
 
-          const profile = (await profileRepository.get(profiletOpts)) || {};
+          const profile = await profileRepository.get(profiletOpts);
 
           const id = account._id;
 
           delete account._id;
           delete account.profile;
+          delete account.relationships;
 
           const returnVal = {
             id,
@@ -80,12 +81,15 @@ module.exports = [
             profile,
           };
 
-          res.json(returnVal || {});
+          res.json(returnVal);
         } catch (error) {
           next(error);
         }
       },
       create: async (req, res, next) => {
+        let newRelationships;
+        let newProfile;
+
         try {
           const isProfileValid = isValid(
             req.body.profile,
@@ -118,20 +122,22 @@ module.exports = [
 
           account.password = await bcrypt.hash(account.password, 8);
 
-          const newProfile = await profileRepository.create({
+          newProfile = await profileRepository.create({
             ...profile,
             language: profile.language || constants.EN,
             status: constants.STATUS_ONLINE,
           });
 
+          newRelationships = await relationshipsRepository.create();
+
           const newAccount = await accountRepository.create({
             ...account,
             profile: newProfile._id,
+            relationships: newRelationships._id,
           });
 
           const id = newAccount._id;
 
-          await relationshipsRepository.create(id);
           await groupsRepository.create(id);
 
           const token = await generateToken(id);
@@ -149,6 +155,7 @@ module.exports = [
           delete retVal.account.__v;
           delete retVal.account.id;
           delete retVal.account.profile;
+          delete retVal.account.relationships;
           delete retVal.account.tokens;
           delete retVal.account.password;
 
@@ -158,6 +165,13 @@ module.exports = [
 
           res.status(codes.CREATED).json(retVal);
         } catch (error) {
+          if (newProfile) {
+            await profileRepository.delete(newProfile._id);
+          }
+          if (newRelationships) {
+            await relationshipsRepository.delete(newRelationships._id);
+          }
+
           next(error);
         }
       },

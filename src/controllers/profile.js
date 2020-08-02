@@ -1,27 +1,20 @@
 module.exports = [
   "profileRepository",
-  "accountRepository",
   "errors",
   "utils",
-  (profileRepository, accountRepository, errors, utils) => {
+  (profileRepository, errors, utils) => {
     const errorCodes = errors.errorCodes;
     const { isValid, invalid } = utils;
 
     return {
       get: async (req, res, next) => {
         try {
-          const profileId = await accountRepository.getField({
-            query: { _id: req.auth.id },
-            field: "profile",
-          });
-
           const query = {
-            _id: profileId,
+            _id: req.users.me.profile,
           };
 
           const projection = {
             _id: 0,
-            id: 0,
           };
 
           const opts = {
@@ -34,7 +27,8 @@ module.exports = [
 
           const result = await profileRepository.get(opts);
 
-          res.json(result || {});
+          delete result.id;
+          return res.json(result);
         } catch (error) {
           next(error);
         }
@@ -50,13 +44,8 @@ module.exports = [
             throw error;
           }
 
-          const profileId = await accountRepository.getField({
-            query: { _id: req.auth.id },
-            field: "profile",
-          });
-
           const query = {
-            _id: profileId,
+            _id: req.users.me.profile,
           };
 
           const updates = req.body;

@@ -53,6 +53,11 @@ module.exports = [
       message: "The user does not exists. Please try again",
     };
 
+    errorInfo[(errorCodes.FRIEND_REQUEST_DOES_NOT_EXIST = "FriendRequestDoesNotExistError")] = {
+      status: codes.NOT_FOUND,
+      message: "The friend request does not exists. Please try again",
+    };
+
     errorInfo[(errorCodes.MESSAGE_NOT_EXIST = "MessageIDNotExistError")] = {
       status: codes.NOT_FOUND,
       message: "Error: message with corresponding ID does not exist",

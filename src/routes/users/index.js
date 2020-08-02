@@ -1,9 +1,11 @@
 const express = require("express");
 
 module.exports = [
+  "auth",
+  "attachUser",
   "usersController",
   "meRoute",
-  (usersController, meRoute) => {
+  (auth, attachUser, usersController, meRoute) => {
     const router = new express.Router();
 
     // /user routes
@@ -11,7 +13,7 @@ module.exports = [
     router.get("/:id", usersController.get);
 
     // /user/me routes
-    router.use("/me", meRoute);
+    router.use("/me", auth, attachUser(true), meRoute);
 
     return router;
   },

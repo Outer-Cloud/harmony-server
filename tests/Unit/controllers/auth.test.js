@@ -39,9 +39,6 @@ describe("Auth Controller tests", () => {
 
     bcrypt.hash = jest.fn(() => expectedEncryptedPassword);
 
-    accountRepository.getSchema = jest.fn(() => {
-      return expectedSchema;
-    });
     accountRepository.insertToken = jest.fn();
 
     utils.generateToken = jest.fn(() => expectedToken);
@@ -53,12 +50,7 @@ describe("Auth Controller tests", () => {
 
     next = jest.fn();
 
-    controller = getAuthController(
-      bcrypt,
-      accountRepository,
-      errors,
-      utils
-    );
+    controller = getAuthController(bcrypt, accountRepository, errors, utils);
   });
 
   describe("Login", () => {
@@ -66,12 +58,7 @@ describe("Auth Controller tests", () => {
       bcrypt.compare = jest.fn(() => true);
       accountRepository.findByEmail = jest.fn(() => expectedAccount);
 
-      controller = getAuthController(
-        bcrypt,
-        accountRepository,
-        errors,
-        utils
-      );
+      controller = getAuthController(bcrypt, accountRepository, errors, utils);
     });
 
     const expectedAccount = {
@@ -130,12 +117,7 @@ describe("Auth Controller tests", () => {
 
       bcrypt.compare = jest.fn(() => false);
 
-      controller = getAuthController(
-        bcrypt,
-        accountRepository,
-        errors,
-        utils
-      );
+      controller = getAuthController(bcrypt, accountRepository, errors, utils);
 
       await controller.login(req, res, next);
 
@@ -296,18 +278,15 @@ describe("Auth Controller tests", () => {
 
   describe("Check token", () => {
     afterEach(() => {
-      expect(accountRepository.get).toBeCalledWith({
-        query: {
-          _id: expectedAccountId,
-          "tokens.token": expectedToken,
-        },
-        lean: true,
+      expect(accountRepository.exists).toBeCalledWith({
+        _id: expectedAccountId,
+        "tokens.token": expectedToken,
       });
     });
 
     test("Should return true for valid token", async () => {
-      accountRepository.get = jest.fn(() => {
-        return {};
+      accountRepository.exists = jest.fn(() => {
+        return true;
       });
 
       const isValid = await controller.checkToken(
@@ -318,7 +297,9 @@ describe("Auth Controller tests", () => {
       expect(isValid).toEqual(true);
     });
     test("Should return false for invalid token", async () => {
-      accountRepository.get = jest.fn();
+      accountRepository.exists = jest.fn(() => {
+        return false;
+      });
 
       const isValid = await controller.checkToken(
         expectedAccountId,
